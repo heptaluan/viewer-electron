@@ -20,4 +20,4 @@ window.config = {
     ],
   },
   studyListFunctionsEnabled: true,
-};
+}

@@ -113,4 +113,4 @@ window.config = {
       keys: ['9'],
     },
   ],
-};
+}

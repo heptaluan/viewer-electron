@@ -1,24 +1,24 @@
 // ~~ WebPack
-const webpack = require('webpack');
-const path = require('path');
-const merge = require('webpack-merge');
-const webpackCommon = require('./../../../.webpack/webpack.commonjs.js');
+const webpack = require('webpack')
+const path = require('path')
+const merge = require('webpack-merge')
+const webpackCommon = require('./../../../.webpack/webpack.commonjs.js')
 // ~~ Plugins
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const fontsToJavaScriptRule = require('./rules/fontsToJavaScript.js');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const fontsToJavaScriptRule = require('./rules/fontsToJavaScript.js')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 // const
-const SRC_DIR = path.join(__dirname, '../src');
-const DIST_DIR = path.join(__dirname, '../dist');
-const PUBLIC_DIR = path.join(__dirname, '../public');
+const SRC_DIR = path.join(__dirname, '../src')
+const DIST_DIR = path.join(__dirname, '../dist')
+const PUBLIC_DIR = path.join(__dirname, '../public')
 // ~~ Env Vars
-const APP_CONFIG = process.env.APP_CONFIG || 'config/default.js';
-const HTML_TEMPLATE = process.env.HTML_TEMPLATE || 'script-tag.html';
-const PUBLIC_URL = process.env.PUBLIC_URL || '/';
+const APP_CONFIG = process.env.APP_CONFIG || 'config/default.js'
+const HTML_TEMPLATE = process.env.HTML_TEMPLATE || 'script-tag.html'
+const PUBLIC_URL = process.env.PUBLIC_URL || '/'
 
 module.exports = (env, argv) => {
-  const commonConfig = webpackCommon(env, argv, { SRC_DIR, DIST_DIR });
+  const commonConfig = webpackCommon(env, argv, { SRC_DIR, DIST_DIR })
 
   const mergedConfig = merge(commonConfig, {
     entry: {
@@ -57,7 +57,7 @@ module.exports = (env, argv) => {
         maxChunks: 1,
       }),
     ],
-  });
+  })
 
-  return mergedConfig;
-};
+  return mergedConfig
+}

@@ -15,6 +15,6 @@ const fontsToJavaScript = {
       },
     },
   ],
-};
+}
 
-module.exports = fontsToJavaScript;
+module.exports = fontsToJavaScript
