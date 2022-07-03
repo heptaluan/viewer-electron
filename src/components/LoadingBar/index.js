@@ -1,4 +1,4 @@
-import Bar from './Bar.js';
-import Container from './Container.js';
+import Bar from './Bar.js'
+import Container from './Container.js'
 
-export { Bar, Container };
+export { Bar, Container }

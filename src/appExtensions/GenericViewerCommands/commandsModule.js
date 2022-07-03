@@ -1,65 +1,59 @@
-import { redux } from '@ohif/core';
-import store from './../../store';
+import { redux } from '@ohif/core'
+import store from './../../store'
 
 const commandsModule = ({ commandsManager }) => {
-  const { setViewportActive, setActiveViewportSpecificData } = redux.actions;
+  const { setViewportActive, setActiveViewportSpecificData } = redux.actions
 
   const actions = {
     updateActiveViewport: ({ viewports, direction }) => {
-      const { viewportSpecificData, activeViewportIndex } = viewports;
-      const maxIndex = Object.keys(viewportSpecificData).length - 1;
+      const { viewportSpecificData, activeViewportIndex } = viewports
+      const maxIndex = Object.keys(viewportSpecificData).length - 1
 
-      let newIndex = activeViewportIndex + direction;
-      newIndex = newIndex > maxIndex ? 0 : newIndex;
-      newIndex = newIndex < 0 ? maxIndex : newIndex;
+      let newIndex = activeViewportIndex + direction
+      newIndex = newIndex > maxIndex ? 0 : newIndex
+      newIndex = newIndex < 0 ? maxIndex : newIndex
 
-      store.dispatch(setViewportActive(newIndex));
+      store.dispatch(setViewportActive(newIndex))
     },
     setWindowLevelPreset: ({ viewports, preset }) => {
-      const state = store.getState();
-      const { preferences = {} } = state;
-      const { window, level } =
-        preferences.windowLevelData && preferences.windowLevelData[preset];
+      const state = store.getState()
+      const { preferences = {} } = state
+      const { window, level } = preferences.windowLevelData && preferences.windowLevelData[preset]
 
       if (window && level) {
         commandsManager.runCommand('setWindowLevel', {
           viewports,
           window,
           level,
-        });
+        })
       }
     },
     updateViewportDisplaySet: ({ viewports, direction }) => {
-      const viewportSpecificData = { ...viewports.viewportSpecificData };
-      const activeViewport =
-        viewportSpecificData[viewports.activeViewportIndex];
-      const studyMetadata = utils.studyMetadataManager.get(
-        activeViewport.StudyInstanceUID
-      );
+      const viewportSpecificData = { ...viewports.viewportSpecificData }
+      const activeViewport = viewportSpecificData[viewports.activeViewportIndex]
+      const studyMetadata = utils.studyMetadataManager.get(activeViewport.StudyInstanceUID)
 
       if (!studyMetadata) {
-        return;
+        return
       }
 
-      const allDisplaySets = studyMetadata.getDisplaySets();
+      const allDisplaySets = studyMetadata.getDisplaySets()
       const currentDisplaySetIndex = allDisplaySets.findIndex(
-        displaySet =>
-          displaySet.displaySetInstanceUID ===
-          activeViewport.displaySetInstanceUID
-      );
+        (displaySet) => displaySet.displaySetInstanceUID === activeViewport.displaySetInstanceUID
+      )
       if (currentDisplaySetIndex < 0) {
-        return;
+        return
       }
 
-      const newDisplaySetIndex = currentDisplaySetIndex + direction;
-      const newDisplaySetData = allDisplaySets[newDisplaySetIndex];
+      const newDisplaySetIndex = currentDisplaySetIndex + direction
+      const newDisplaySetData = allDisplaySets[newDisplaySetIndex]
       if (!newDisplaySetData) {
-        return;
+        return
       }
 
-      store.dispatch(setActiveViewportSpecificData(newDisplaySetData));
+      store.dispatch(setActiveViewportSpecificData(newDisplaySetData))
     },
-  };
+  }
 
   const definitions = {
     // Next/Previous active viewport
@@ -129,12 +123,12 @@ const commandsModule = ({ commandsManager }) => {
       storeContexts: ['viewports'],
       options: { direction: -1 },
     },
-  };
+  }
 
   return {
     definitions,
     defaultContext: 'VIEWER',
-  };
-};
+  }
+}
 
-export default commandsModule;
+export default commandsModule

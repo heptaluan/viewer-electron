@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 const Container = ({ children, isFinished, animationDuration }) => (
   <div
@@ -10,6 +10,6 @@ const Container = ({ children, isFinished, animationDuration }) => (
   >
     {children}
   </div>
-);
+)
 
-export default Container;
+export default Container
