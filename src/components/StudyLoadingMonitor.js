@@ -1,23 +1,23 @@
-import { useEffect } from 'react';
-import OHIF from '@ohif/core';
+import { useEffect } from 'react'
+import OHIF from '@ohif/core'
 
-const { StudyLoadingListener } = OHIF.classes;
+const { StudyLoadingListener } = OHIF.classes
 
 const StudyLoadingMonitor = ({ studies }) => {
   useEffect(() => {
-    const studyLoadingListener = StudyLoadingListener.getInstance();
+    const studyLoadingListener = StudyLoadingListener.getInstance()
 
     if (studies && studies.length > 0) {
-      studyLoadingListener.clear();
-      studyLoadingListener.addStudies(studies);
+      studyLoadingListener.clear()
+      studyLoadingListener.addStudies(studies)
     }
 
     return () => {
-      studyLoadingListener.clear();
-    };
-  }, [studies]);
+      studyLoadingListener.clear()
+    }
+  }, [studies])
 
-  return null;
-};
+  return null
+}
 
-export default StudyLoadingMonitor;
+export default StudyLoadingMonitor

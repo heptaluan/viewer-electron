@@ -1,55 +1,55 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { useSelector, useDispatch } from 'react-redux';
-import { redux } from '@ohif/core';
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { useSelector, useDispatch } from 'react-redux'
+import { redux } from '@ohif/core'
 
-import { TabFooter, useSnackbarContext } from '@ohif/ui';
-import { useTranslation } from 'react-i18next';
+import { TabFooter, useSnackbarContext } from '@ohif/ui'
+import { useTranslation } from 'react-i18next'
 
-const { actions } = redux;
+const { actions } = redux
 
-import './WindowLevelPreferences.styl';
+import './WindowLevelPreferences.styl'
 
 function WindowLevelPreferences({ onClose }) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
-  const windowLevelData = useSelector(state => {
-    const { preferences = {} } = state;
-    const { windowLevelData } = preferences;
+  const windowLevelData = useSelector((state) => {
+    const { preferences = {} } = state
+    const { windowLevelData } = preferences
 
-    return windowLevelData;
-  });
+    return windowLevelData
+  })
 
   const [state, setState] = useState({
     values: { ...windowLevelData },
-  });
+  })
 
-  const { t } = useTranslation('UserPreferencesModal');
-  const onResetPreferences = () => {};
-  const hasErrors = false;
+  const { t } = useTranslation('UserPreferencesModal')
+  const onResetPreferences = () => {}
+  const hasErrors = false
   const onSave = () => {
-    dispatch(actions.setUserPreferences({ windowLevelData: state.values }));
+    dispatch(actions.setUserPreferences({ windowLevelData: state.values }))
 
-    onClose();
+    onClose()
 
     snackbar.show({
       message: t('SaveMessage'),
       type: 'success',
-    });
-  };
+    })
+  }
 
-  const snackbar = useSnackbarContext();
+  const snackbar = useSnackbarContext()
 
-  const handleInputChange = event => {
-    const $target = event.target;
-    const { key, inputname } = $target.dataset;
-    const inputValue = $target.value;
+  const handleInputChange = (event) => {
+    const $target = event.target
+    const { key, inputname } = $target.dataset
+    const inputValue = $target.value
 
     if (!state.values[key] || !state.values[key][inputname]) {
-      return;
+      return
     }
 
-    setState(prevState => ({
+    setState((prevState) => ({
       ...prevState,
       values: {
         ...prevState.values,
@@ -58,8 +58,8 @@ function WindowLevelPreferences({ onClose }) {
           [inputname]: inputValue,
         },
       },
-    }));
-  };
+    }))
+  }
 
   return (
     <React.Fragment>
@@ -106,7 +106,7 @@ function WindowLevelPreferences({ onClose }) {
                   />
                 </div>
               </div>
-            );
+            )
           })}
         </div>
       </div>
@@ -118,11 +118,11 @@ function WindowLevelPreferences({ onClose }) {
         t={t}
       />
     </React.Fragment>
-  );
+  )
 }
 
 WindowLevelPreferences.propTypes = {
   onClose: PropTypes.func,
-};
+}
 
-export { WindowLevelPreferences };
+export { WindowLevelPreferences }

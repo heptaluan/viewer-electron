@@ -1,18 +1,18 @@
-import './ViewportGrid.css';
+import './ViewportGrid.css'
 
-import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { utils } from '@ohif/core';
-import { useSnackbarContext, useLogger } from '@ohif/ui';
+import React, { useEffect } from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import { utils } from '@ohif/core'
+import { useSnackbarContext, useLogger } from '@ohif/ui'
 //
-import ViewportPane from './ViewportPane.js';
-import DefaultViewport from './DefaultViewport.js';
-import EmptyViewport from './EmptyViewport.js';
+import ViewportPane from './ViewportPane.js'
+import DefaultViewport from './DefaultViewport.js'
+import EmptyViewport from './EmptyViewport.js'
 
-const { loadAndCacheDerivedDisplaySets } = utils;
+const { loadAndCacheDerivedDisplaySets } = utils
 
-const ViewportGrid = function(props) {
+const ViewportGrid = function (props) {
   const {
     activeViewportIndex,
     availablePlugins,
@@ -25,39 +25,39 @@ const ViewportGrid = function(props) {
     viewportData,
     children,
     isStudyLoaded,
-  } = props;
+  } = props
 
-  const rowSize = 100 / numRows;
-  const colSize = 100 / numColumns;
+  const rowSize = 100 / numRows
+  const colSize = 100 / numColumns
 
   // http://grid.malven.co/
   if (!viewportData || !viewportData.length) {
-    return null;
+    return null
   }
 
-  const snackbar = useSnackbarContext();
-  const logger = useLogger();
+  const snackbar = useSnackbarContext()
+  const logger = useLogger()
 
   useEffect(() => {
     if (isStudyLoaded) {
-      viewportData.forEach(displaySet => {
-        loadAndCacheDerivedDisplaySets(displaySet, studies, logger, snackbar);
-      });
+      viewportData.forEach((displaySet) => {
+        loadAndCacheDerivedDisplaySets(displaySet, studies, logger, snackbar)
+      })
     }
-  }, [studies, viewportData, isStudyLoaded, snackbar]);
+  }, [studies, viewportData, isStudyLoaded, snackbar])
 
   const getViewportPanes = () =>
     layout.viewports.map((layout, viewportIndex) => {
-      const displaySet = viewportData[viewportIndex];
+      const displaySet = viewportData[viewportIndex]
 
       if (!displaySet) {
-        return null;
+        return null
       }
 
       const data = {
         displaySet,
         studies,
-      };
+      }
 
       // JAMES TODO:
 
@@ -71,10 +71,7 @@ const ViewportGrid = function(props) {
       // in the viewport is capable of rendering this display set. If not
       // then use the most capable available plugin
 
-      const pluginName =
-        !layout.plugin && displaySet && displaySet.plugin
-          ? displaySet.plugin
-          : layout.plugin;
+      const pluginName = !layout.plugin && displaySet && displaySet.plugin ? displaySet.plugin : layout.plugin
 
       const ViewportComponent = _getViewportComponent(
         data, // Why do we pass this as `ViewportData`, when that's not really what it is?
@@ -83,7 +80,7 @@ const ViewportGrid = function(props) {
         availablePlugins,
         pluginName,
         defaultPluginName
-      );
+      )
 
       return (
         <ViewportPane
@@ -96,8 +93,8 @@ const ViewportGrid = function(props) {
         >
           {ViewportComponent}
         </ViewportPane>
-      );
-    });
+      )
+    })
 
   const ViewportPanes = React.useMemo(getViewportPanes, [
     layout,
@@ -108,7 +105,7 @@ const ViewportGrid = function(props) {
     defaultPluginName,
     setViewportData,
     activeViewportIndex,
-  ]);
+  ])
 
   return (
     <div
@@ -123,8 +120,8 @@ const ViewportGrid = function(props) {
     >
       {ViewportPanes}
     </div>
-  );
-};
+  )
+}
 
 ViewportGrid.propTypes = {
   viewportData: PropTypes.array.isRequired,
@@ -138,7 +135,7 @@ ViewportGrid.propTypes = {
   defaultPlugin: PropTypes.string,
   numRows: PropTypes.number.isRequired,
   numColumns: PropTypes.number.isRequired,
-};
+}
 
 ViewportGrid.defaultProps = {
   viewportData: [],
@@ -153,7 +150,7 @@ ViewportGrid.defaultProps = {
     DefaultViewport,
   },
   defaultPlugin: 'defaultViewportPlugin',
-};
+}
 
 /**
  *
@@ -164,35 +161,22 @@ ViewportGrid.defaultProps = {
  * @param {*} children
  * @returns
  */
-function _getViewportComponent(
-  viewportData,
-  viewportIndex,
-  children,
-  availablePlugins,
-  pluginName,
-  defaultPluginName
-) {
+function _getViewportComponent(viewportData, viewportIndex, children, availablePlugins, pluginName, defaultPluginName) {
   if (viewportData.displaySet) {
-    pluginName = pluginName || defaultPluginName;
-    const ViewportComponent = availablePlugins[pluginName];
+    pluginName = pluginName || defaultPluginName
+    const ViewportComponent = availablePlugins[pluginName]
 
     if (!ViewportComponent) {
       throw new Error(
         `No Viewport Component available for name ${pluginName}.
          Available plugins: ${JSON.stringify(availablePlugins)}`
-      );
+      )
     }
 
-    return (
-      <ViewportComponent
-        viewportData={viewportData}
-        viewportIndex={viewportIndex}
-        children={[children]}
-      />
-    );
+    return <ViewportComponent viewportData={viewportData} viewportIndex={viewportIndex} children={[children]} />
   }
 
-  return <EmptyViewport />;
+  return <EmptyViewport />
 }
 
-export default ViewportGrid;
+export default ViewportGrid

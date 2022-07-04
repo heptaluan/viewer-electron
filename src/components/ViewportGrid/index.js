@@ -1,5 +1,5 @@
-import ConnectedViewportGrid from './ConnectedViewportGrid.js';
-import ViewportGrid from './ViewportGrid.js';
+import ConnectedViewportGrid from './ConnectedViewportGrid.js'
+import ViewportGrid from './ViewportGrid.js'
 
-export default ViewportGrid;
-export { ConnectedViewportGrid, ViewportGrid };
+export default ViewportGrid
+export { ConnectedViewportGrid, ViewportGrid }

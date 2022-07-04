@@ -1,8 +1,8 @@
 const range = (start, end) => {
-  return new Array(end - start).fill().map((d, i) => i + start);
-};
+  return new Array(end - start).fill().map((d, i) => i + start)
+}
 
-export const MODIFIER_KEYS = ['ctrl', 'alt', 'shift'];
+export const MODIFIER_KEYS = ['ctrl', 'alt', 'shift']
 
 export const DISALLOWED_COMBINATIONS = {
   '': [],
@@ -34,7 +34,7 @@ export const DISALLOWED_COMBINATIONS = {
     'pageup',
   ],
   'ctrl+shift': ['q', 'w', 'r', 't', 'p', 'a', 'h', 'v', 'b', 'n'],
-};
+}
 
 export const SPECIAL_KEYS = {
   8: 'backspace',
@@ -88,4 +88,4 @@ export const SPECIAL_KEYS = {
   145: 'scroll',
   191: '/',
   224: 'meta',
-};
+}

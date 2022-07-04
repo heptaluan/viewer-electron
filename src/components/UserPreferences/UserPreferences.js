@@ -1,14 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 
-import { TabComponents } from '@ohif/ui';
+import { TabComponents } from '@ohif/ui'
 
 // Tabs
-import { HotkeysPreferences } from './HotkeysPreferences';
-import { WindowLevelPreferences } from './WindowLevelPreferences';
-import { GeneralPreferences } from './GeneralPreferences';
+import { HotkeysPreferences } from './HotkeysPreferences'
+import { WindowLevelPreferences } from './WindowLevelPreferences'
+import { GeneralPreferences } from './GeneralPreferences'
 
-import './UserPreferences.styl';
+import './UserPreferences.styl'
 
 const tabs = [
   {
@@ -26,17 +26,17 @@ const tabs = [
     Component: WindowLevelPreferences,
     customProps: {},
   },
-];
+]
 
 function UserPreferences({ hide }) {
   const customProps = {
     onClose: hide,
-  };
-  return <TabComponents tabs={tabs} customProps={customProps} />;
+  }
+  return <TabComponents tabs={tabs} customProps={customProps} />
 }
 
 UserPreferences.propTypes = {
   hide: PropTypes.func,
-};
+}
 
-export { UserPreferences };
+export { UserPreferences }
