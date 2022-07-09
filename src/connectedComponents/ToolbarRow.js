@@ -1,22 +1,16 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { withTranslation } from 'react-i18next';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import { withTranslation } from 'react-i18next'
 
-import { MODULE_TYPES } from '@ohif/core';
-import {
-  ExpandableToolMenu,
-  RoundedButtonGroup,
-  ToolbarButton,
-  withModal,
-  withDialog,
-} from '@ohif/ui';
+import { MODULE_TYPES } from '@ohif/core'
+import { ExpandableToolMenu, RoundedButtonGroup, ToolbarButton, withModal, withDialog } from '@ohif/ui'
 
-import './ToolbarRow.css';
-import { commandsManager, extensionManager } from './../App.js';
+import './ToolbarRow.css'
+import { commandsManager, extensionManager } from './../App.js'
 
-import ConnectedCineDialog from './ConnectedCineDialog';
-import ConnectedLayoutButton from './ConnectedLayoutButton';
-import { withAppContext } from '../context/AppContext';
+import ConnectedCineDialog from './ConnectedCineDialog'
+import ConnectedLayoutButton from './ConnectedLayoutButton'
+import { withAppContext } from '../context/AppContext'
 
 class ToolbarRow extends Component {
   // TODO: Simplify these? isOpen can be computed if we say "any" value for selected,
@@ -33,16 +27,16 @@ class ToolbarRow extends Component {
     // NOTE: withDialog, withModal HOCs
     dialog: PropTypes.any,
     modal: PropTypes.any,
-  };
+  }
 
   static defaultProps = {
     studies: [],
-  };
+  }
 
   constructor(props) {
-    super(props);
+    super(props)
 
-    const toolbarButtonDefinitions = _getVisibleToolbarButtons.call(this);
+    const toolbarButtonDefinitions = _getVisibleToolbarButtons.call(this)
     // TODO:
     // If it's a tool that can be active... Mark it as active?
     // - Tools that are on/off?
@@ -54,42 +48,38 @@ class ToolbarRow extends Component {
     this.state = {
       toolbarButtons: toolbarButtonDefinitions,
       activeButtons: [],
-    };
+    }
 
-    this.seriesPerStudyCount = [];
+    this.seriesPerStudyCount = []
 
-    this._handleBuiltIn = _handleBuiltIn.bind(this);
-    this._onDerivedDisplaySetsLoadedAndCached = this._onDerivedDisplaySetsLoadedAndCached.bind(
-      this
-    );
+    this._handleBuiltIn = _handleBuiltIn.bind(this)
+    this._onDerivedDisplaySetsLoadedAndCached = this._onDerivedDisplaySetsLoadedAndCached.bind(this)
 
-    this.updateButtonGroups();
+    this.updateButtonGroups()
   }
 
   updateButtonGroups() {
-    const panelModules = extensionManager.modules[MODULE_TYPES.PANEL];
+    const panelModules = extensionManager.modules[MODULE_TYPES.PANEL]
 
     this.buttonGroups = {
       left: [],
       right: [],
-    };
+    }
 
     // ~ FIND MENU OPTIONS
-    panelModules.forEach(panelExtension => {
-      const panelModule = panelExtension.module;
-      const defaultContexts = Array.from(panelModule.defaultContext);
+    panelModules.forEach((panelExtension) => {
+      const panelModule = panelExtension.module
+      const defaultContexts = Array.from(panelModule.defaultContext)
 
-      panelModule.menuOptions.forEach(menuOption => {
-        const contexts = Array.from(menuOption.context || defaultContexts);
-        const hasActiveContext = this.props.activeContexts.some(actx =>
-          contexts.includes(actx)
-        );
+      panelModule.menuOptions.forEach((menuOption) => {
+        const contexts = Array.from(menuOption.context || defaultContexts)
+        const hasActiveContext = this.props.activeContexts.some((actx) => contexts.includes(actx))
 
         // It's a bit beefy to pass studies; probably only need to be reactive on `studyInstanceUIDs` and activeViewport?
         // Note: This does not cleanly handle `studies` prop updating with panel open
         const isDisabled =
           typeof menuOption.isDisabled === 'function' &&
-          menuOption.isDisabled(this.props.studies, this.props.activeViewport);
+          menuOption.isDisabled(this.props.studies, this.props.activeViewport)
 
         if (hasActiveContext && !isDisabled) {
           const menuOptionEntry = {
@@ -98,20 +88,20 @@ class ToolbarRow extends Component {
             bottomLabel: menuOption.label,
             badgeNumber: menuOption.badgeNumber,
             stateEvent: menuOption.stateEvent,
-          };
-          const from = menuOption.from || 'right';
+          }
+          const from = menuOption.from || 'right'
 
-          this.buttonGroups[from].push(menuOptionEntry);
+          this.buttonGroups[from].push(menuOptionEntry)
         }
-      });
-    });
+      })
+    })
 
     // TODO: This should come from extensions, instead of being baked in
     this.buttonGroups.left.unshift({
       value: 'studies',
       icon: 'th-large',
       bottomLabel: this.props.t('Series'),
-    });
+    })
   }
 
   componentDidMount() {
@@ -120,56 +110,46 @@ class ToolbarRow extends Component {
      * that depends on derived display sets to be loaded.
      * (Implement pubsub for better tracking of derived display sets)
      */
-    document.addEventListener(
-      'deriveddisplaysetsloadedandcached',
-      this._onDerivedDisplaySetsLoadedAndCached
-    );
+    document.addEventListener('deriveddisplaysetsloadedandcached', this._onDerivedDisplaySetsLoadedAndCached)
   }
 
   componentWillUnmount() {
-    document.removeEventListener(
-      'deriveddisplaysetsloadedandcached',
-      this._onDerivedDisplaySetsLoadedAndCached
-    );
+    document.removeEventListener('deriveddisplaysetsloadedandcached', this._onDerivedDisplaySetsLoadedAndCached)
   }
 
   _onDerivedDisplaySetsLoadedAndCached() {
-    this.updateButtonGroups();
+    this.updateButtonGroups()
     this.setState({
       toolbarButtons: _getVisibleToolbarButtons.call(this),
-    });
+    })
   }
 
   componentDidUpdate(prevProps) {
-    const activeContextsChanged =
-      prevProps.activeContexts !== this.props.activeContexts;
+    const activeContextsChanged = prevProps.activeContexts !== this.props.activeContexts
 
-    const prevStudies = prevProps.studies;
-    const prevActiveViewport = prevProps.activeViewport;
-    const activeViewport = this.props.activeViewport;
-    const studies = this.props.studies;
-    const seriesPerStudyCount = this.seriesPerStudyCount;
+    const prevStudies = prevProps.studies
+    const prevActiveViewport = prevProps.activeViewport
+    const activeViewport = this.props.activeViewport
+    const studies = this.props.studies
+    const seriesPerStudyCount = this.seriesPerStudyCount
 
-    let shouldUpdate = false;
+    let shouldUpdate = false
 
-    if (
-      prevStudies.length !== studies.length ||
-      prevActiveViewport !== activeViewport
-    ) {
-      shouldUpdate = true;
+    if (prevStudies.length !== studies.length || prevActiveViewport !== activeViewport) {
+      shouldUpdate = true
     } else {
       for (let i = 0; i < studies.length; i++) {
         if (studies[i].series.length !== seriesPerStudyCount[i]) {
-          seriesPerStudyCount[i] = studies[i].series.length;
+          seriesPerStudyCount[i] = studies[i].series.length
 
-          shouldUpdate = true;
-          break;
+          shouldUpdate = true
+          break
         }
       }
     }
 
     if (shouldUpdate) {
-      this.updateButtonGroups();
+      this.updateButtonGroups()
     }
 
     if (activeContextsChanged) {
@@ -178,39 +158,31 @@ class ToolbarRow extends Component {
           toolbarButtons: _getVisibleToolbarButtons.call(this),
         },
         this.closeCineDialogIfNotApplicable
-      );
+      )
     }
   }
 
   closeCineDialogIfNotApplicable = () => {
-    const { dialog } = this.props;
-    let { dialogId, activeButtons, toolbarButtons } = this.state;
+    const { dialog } = this.props
+    let { dialogId, activeButtons, toolbarButtons } = this.state
     if (dialogId) {
-      const cineButtonPresent = toolbarButtons.find(
-        button => button.options && button.options.behavior === 'CINE'
-      );
+      const cineButtonPresent = toolbarButtons.find((button) => button.options && button.options.behavior === 'CINE')
       if (!cineButtonPresent) {
-        dialog.dismiss({ id: dialogId });
-        activeButtons = activeButtons.filter(
-          button => button.options && button.options.behavior !== 'CINE'
-        );
-        this.setState({ dialogId: null, activeButtons });
+        dialog.dismiss({ id: dialogId })
+        activeButtons = activeButtons.filter((button) => button.options && button.options.behavior !== 'CINE')
+        this.setState({ dialogId: null, activeButtons })
       }
     }
-  };
+  }
 
   render() {
-    const buttonComponents = _getButtonComponents.call(
-      this,
-      this.state.toolbarButtons,
-      this.state.activeButtons
-    );
+    const buttonComponents = _getButtonComponents.call(this, this.state.toolbarButtons, this.state.activeButtons)
 
     const onPress = (side, value) => {
-      this.props.handleSidePanelChange(side, value);
-    };
-    const onPressLeft = onPress.bind(this, 'left');
-    const onPressRight = onPress.bind(this, 'right');
+      this.props.handleSidePanelChange(side, value)
+    }
+    const onPressLeft = onPress.bind(this, 'left')
+    const onPressRight = onPress.bind(this, 'right')
 
     return (
       <>
@@ -224,10 +196,7 @@ class ToolbarRow extends Component {
           </div>
           {buttonComponents}
           <ConnectedLayoutButton />
-          <div
-            className="pull-right m-t-1 rm-x-1"
-            style={{ marginLeft: 'auto' }}
-          >
+          <div className="pull-right m-t-1 rm-x-1" style={{ marginLeft: 'auto' }}>
             {this.buttonGroups.right.length && (
               <RoundedButtonGroup
                 options={this.buttonGroups.right}
@@ -238,19 +207,19 @@ class ToolbarRow extends Component {
           </div>
         </div>
       </>
-    );
+    )
   }
 }
 
 function _getCustomButtonComponent(button, activeButtons) {
-  const CustomComponent = button.CustomComponent;
-  const isValidComponent = typeof CustomComponent === 'function';
+  const CustomComponent = button.CustomComponent
+  const isValidComponent = typeof CustomComponent === 'function'
 
   // Check if its a valid customComponent. Later on an CustomToolbarComponent interface could be implemented.
   if (isValidComponent) {
-    const parentContext = this;
-    const activeButtonsIds = activeButtons.map(button => button.id);
-    const isActive = activeButtonsIds.includes(button.id);
+    const parentContext = this
+    const activeButtonsIds = activeButtons.map((button) => button.id)
+    const isActive = activeButtonsIds.includes(button.id)
 
     return (
       <CustomComponent
@@ -261,22 +230,22 @@ function _getCustomButtonComponent(button, activeButtons) {
         activeButtons={activeButtonsIds}
         isActive={isActive}
       />
-    );
+    )
   }
 }
 
 function _getExpandableButtonComponent(button, activeButtons) {
   // Iterate over button definitions and update `onClick` behavior
-  let activeCommand;
-  const childButtons = button.buttons.map(childButton => {
-    childButton.onClick = _handleToolbarButtonClick.bind(this, childButton);
+  let activeCommand
+  const childButtons = button.buttons.map((childButton) => {
+    childButton.onClick = _handleToolbarButtonClick.bind(this, childButton)
 
-    if (activeButtons.map(button => button.id).indexOf(childButton.id) > -1) {
-      activeCommand = childButton.id;
+    if (activeButtons.map((button) => button.id).indexOf(childButton.id) > -1) {
+      activeCommand = childButton.id
     }
 
-    return childButton;
-  });
+    return childButton
+  })
 
   return (
     <ExpandableToolMenu
@@ -286,7 +255,7 @@ function _getExpandableButtonComponent(button, activeButtons) {
       buttons={childButtons}
       activeCommand={activeCommand}
     />
-  );
+  )
 }
 
 function _getDefaultButtonComponent(button, activeButtons) {
@@ -296,30 +265,30 @@ function _getDefaultButtonComponent(button, activeButtons) {
       label={button.label}
       icon={button.icon}
       onClick={_handleToolbarButtonClick.bind(this, button)}
-      isActive={activeButtons.map(button => button.id).includes(button.id)}
+      isActive={activeButtons.map((button) => button.id).includes(button.id)}
     />
-  );
+  )
 }
 /**
  * Determine which extension buttons should be showing, if they're
  * active, and what their onClick behavior should be.
  */
 function _getButtonComponents(toolbarButtons, activeButtons) {
-  const _this = this;
-  return toolbarButtons.map(button => {
-    const hasCustomComponent = button.CustomComponent;
-    const hasNestedButtonDefinitions = button.buttons && button.buttons.length;
+  const _this = this
+  return toolbarButtons.map((button) => {
+    const hasCustomComponent = button.CustomComponent
+    const hasNestedButtonDefinitions = button.buttons && button.buttons.length
 
     if (hasCustomComponent) {
-      return _getCustomButtonComponent.call(_this, button, activeButtons);
+      return _getCustomButtonComponent.call(_this, button, activeButtons)
     }
 
     if (hasNestedButtonDefinitions) {
-      return _getExpandableButtonComponent.call(_this, button, activeButtons);
+      return _getExpandableButtonComponent.call(_this, button, activeButtons)
     }
 
-    return _getDefaultButtonComponent.call(_this, button, activeButtons);
-  });
+    return _getDefaultButtonComponent.call(_this, button, activeButtons)
+  })
 }
 
 /**
@@ -335,23 +304,21 @@ function _getButtonComponents(toolbarButtons, activeButtons) {
  * @param {*} props
  */
 function _handleToolbarButtonClick(button, evt, props) {
-  const { activeButtons } = this.state;
+  const { activeButtons } = this.state
 
   if (button.commandName) {
-    const options = Object.assign({ evt }, button.commandOptions);
-    commandsManager.runCommand(button.commandName, options);
+    const options = Object.assign({ evt }, button.commandOptions)
+    commandsManager.runCommand(button.commandName, options)
   }
 
   // TODO: Use Types ENUM
   // TODO: We can update this to be a `getter` on the extension to query
   //       For the active tools after we apply our updates?
   if (button.type === 'setToolActive') {
-    const toggables = activeButtons.filter(
-      ({ options }) => options && !options.togglable
-    );
-    this.setState({ activeButtons: [...toggables, button] });
+    const toggables = activeButtons.filter(({ options }) => options && !options.togglable)
+    this.setState({ activeButtons: [...toggables, button] })
   } else if (button.type === 'builtIn') {
-    this._handleBuiltIn(button);
+    this._handleBuiltIn(button)
   }
 }
 
@@ -359,64 +326,58 @@ function _handleToolbarButtonClick(button, evt, props) {
  *
  */
 function _getVisibleToolbarButtons() {
-  const toolbarModules = extensionManager.modules[MODULE_TYPES.TOOLBAR];
-  const toolbarButtonDefinitions = [];
+  const toolbarModules = extensionManager.modules[MODULE_TYPES.TOOLBAR]
+  const toolbarButtonDefinitions = []
 
-  toolbarModules.forEach(extension => {
-    const { definitions, defaultContext } = extension.module;
-    definitions.forEach(definition => {
-      const context = definition.context || defaultContext;
+  toolbarModules.forEach((extension) => {
+    const { definitions, defaultContext } = extension.module
+    definitions.forEach((definition) => {
+      const context = definition.context || defaultContext
 
       if (this.props.activeContexts.includes(context)) {
-        toolbarButtonDefinitions.push(definition);
+        toolbarButtonDefinitions.push(definition)
       }
-    });
-  });
+    })
+  })
 
-  return toolbarButtonDefinitions;
+  return toolbarButtonDefinitions
 }
 
 function _handleBuiltIn(button) {
   /* TODO: Keep cine button active until its unselected. */
-  const { dialog, t } = this.props;
-  const { dialogId } = this.state;
-  const { id, options } = button;
+  const { dialog, t } = this.props
+  const { dialogId } = this.state
+  const { id, options } = button
 
   if (options.behavior === 'CINE') {
     if (dialogId) {
-      dialog.dismiss({ id: dialogId });
-      this.setState(state => ({
+      dialog.dismiss({ id: dialogId })
+      this.setState((state) => ({
         dialogId: null,
-        activeButtons: [
-          ...state.activeButtons.filter(button => button.id !== id),
-        ],
-      }));
+        activeButtons: [...state.activeButtons.filter((button) => button.id !== id)],
+      }))
     } else {
-      const spacing = 20;
-      const { x, y } = document
-        .querySelector(`.ViewerMain`)
-        .getBoundingClientRect();
+      const spacing = 20
+      const { x, y } = document.querySelector(`.ViewerMain`).getBoundingClientRect()
       const newDialogId = dialog.create({
         content: ConnectedCineDialog,
         defaultPosition: {
           x: x + spacing || 0,
           y: y + spacing || 0,
         },
-      });
-      this.setState(state => ({
+      })
+      this.setState((state) => ({
         dialogId: newDialogId,
         activeButtons: [...state.activeButtons, button],
-      }));
+      }))
     }
   }
 
   if (options.behavior === 'DOWNLOAD_SCREEN_SHOT') {
     commandsManager.runCommand('showDownloadViewportModal', {
       title: t('Download High Quality Image'),
-    });
+    })
   }
 }
 
-export default withTranslation(['Common', 'ViewportDownloadForm'])(
-  withModal(withDialog(withAppContext(ToolbarRow)))
-);
+export default withTranslation(['Common', 'ViewportDownloadForm'])(withModal(withDialog(withAppContext(ToolbarRow))))
