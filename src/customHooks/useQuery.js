@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom'
 
 /**
  * hook that builds on useLocation to parse
@@ -6,6 +6,6 @@ import { useLocation } from 'react-router-dom';
  *
  * @name useQuery
  */
-export default function() {
-  return new URLSearchParams(useLocation().search);
+export default function () {
+  return new URLSearchParams(useLocation().search)
 }
