@@ -1,31 +1,22 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import DatasetSelector from './DatasetSelector';
-import './googleCloud.css';
-import { withTranslation } from 'react-i18next';
-import * as GoogleCloudUtilServers from './utils/getServers';
+import React from 'react'
+import PropTypes from 'prop-types'
+import DatasetSelector from './DatasetSelector'
+import './googleCloud.css'
+import { withTranslation } from 'react-i18next'
+import * as GoogleCloudUtilServers from './utils/getServers'
 
-import { servicesManager } from './../App.js';
+import { servicesManager } from './../App.js'
 
-function DicomStorePickerModal({
-  isOpen = false,
-  setServers,
-  onClose,
-  user,
-  url,
-  t,
-}) {
-  const { UIModalService } = servicesManager.services;
+function DicomStorePickerModal({ isOpen = false, setServers, onClose, user, url, t }) {
+  const { UIModalService } = servicesManager.services
 
   const showDicomStorePickerModal = () => {
-    const handleEvent = data => {
-      const servers = GoogleCloudUtilServers.getServers(data, data.dicomstore);
-      setServers(servers);
-
-      // Force auto close
-      UIModalService.hide();
-      onClose();
-    };
+    const handleEvent = (data) => {
+      const servers = GoogleCloudUtilServers.getServers(data, data.dicomstore)
+      setServers(servers)
+      UIModalService.hide()
+      onClose()
+    }
 
     if (UIModalService) {
       UIModalService.show({
@@ -37,13 +28,11 @@ function DicomStorePickerModal({
           url,
         },
         onClose,
-      });
+      })
     }
-  };
+  }
 
-  return (
-    <React.Fragment>{isOpen && showDicomStorePickerModal()}</React.Fragment>
-  );
+  return <React.Fragment>{isOpen && showDicomStorePickerModal()}</React.Fragment>
 }
 
 DicomStorePickerModal.propTypes = {
@@ -52,6 +41,6 @@ DicomStorePickerModal.propTypes = {
   onClose: PropTypes.func,
   user: PropTypes.object.isRequired,
   url: PropTypes.string,
-};
+}
 
-export default withTranslation('Common')(DicomStorePickerModal);
+export default withTranslation('Common')(DicomStorePickerModal)
