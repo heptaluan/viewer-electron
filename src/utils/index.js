@@ -1,4 +1,4 @@
-import getUserManagerForOpenIdConnectClient from './getUserManagerForOpenIdConnectClient.js';
-import initWebWorkers from './initWebWorkers.js';
+import getUserManagerForOpenIdConnectClient from './getUserManagerForOpenIdConnectClient.js'
+import initWebWorkers from './initWebWorkers.js'
 
-export { getUserManagerForOpenIdConnectClient, initWebWorkers };
+export { getUserManagerForOpenIdConnectClient, initWebWorkers }
