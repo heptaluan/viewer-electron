@@ -102,21 +102,12 @@ function StudyListRoute(props) {
   )
 
   // TODO: Update Server
-  // if (this.props.server !== prevProps.server) {
-  //   this.setState({
-  //     modalComponentId: null,
-  //     searchData: null,
-  //     studies: null,
-  //   });
-  // }
-
-  const onDrop = async (acceptedFiles) => {
-    try {
-      const studiesFromFiles = await filesToStudies(acceptedFiles)
-      setStudies(studiesFromFiles)
-    } catch (error) {
-      setSearchStatus({ isSearchingForStudies: false, error })
-    }
+  if (this.props.server !== prevProps.server) {
+    this.setState({
+      modalComponentId: null,
+      searchData: null,
+      studies: null,
+    });
   }
 
   if (searchStatus.error) {
@@ -133,7 +124,7 @@ function StudyListRoute(props) {
     updateURL(isModalOpen, appConfig, server, history)
 
     healthCareApiWindows = (
-      <ConnectedDicomStorePicker isOpen={activeModalId === 'DicomStorePicker'} onClose={() => setActiveModalId(null)} />
+      <ConnectedDicomStorePicker studies={studies} isOpen={activeModalId === 'DicomStorePicker'} onClose={() => setActiveModalId(null)} />
     )
 
     healthCareApiButtons = (
@@ -195,7 +186,7 @@ function StudyListRoute(props) {
       </WhiteLabelingContext.Consumer>
       <div className="study-list-header">
         <div className="header">
-          <h1 style={{ fontWeight: 300, fontSize: '22px' }}>{t('StudyList')}</h1>
+          <h1 style={{ fontSize: '18px' }}>{t('StudyList')}</h1>
         </div>
         <div className="actions">
           {studyListFunctionsEnabled && healthCareApiButtons}
@@ -215,6 +206,7 @@ function StudyListRoute(props) {
           onSelectItem={(studyInstanceUID) => {
             const viewerPath = RoutesUtil.parseViewerPath(appConfig, server, {
               studyInstanceUIDs: studyInstanceUID,
+              studies,
             })
             history.push(viewerPath)
           }}

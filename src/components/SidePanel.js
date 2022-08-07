@@ -11,6 +11,7 @@ const SidePanel = ({ from, isOpen, children, width }) => {
     ? {
         maxWidth: width,
         marginRight: isOpen ? '0' : Number.parseInt(width) * -1,
+        border: '1px solid #ccc'
       }
     : {}
 

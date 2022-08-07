@@ -33,6 +33,7 @@ const mapDispatchToProps = (dispatch) => {
         })
       }
       const layout = {
+        selectedCell,
         numRows,
         numColumns,
         viewports,
