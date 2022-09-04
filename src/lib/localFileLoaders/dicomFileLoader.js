@@ -1,37 +1,41 @@
-import dcmjs from 'dcmjs'
-import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
-import FileLoader from './fileLoader'
-import OHIF from '@ohif/core'
+import dcmjs from 'dcmjs';
+import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
+import FileLoader from './fileLoader';
+import OHIF from '@ohif/core';
 
-const metadataProvider = OHIF.cornerstone.metadataProvider
+const metadataProvider = OHIF.cornerstone.metadataProvider;
 
 const DICOMFileLoader = new (class extends FileLoader {
-  fileType = 'application/dicom'
+  fileType = 'application/dicom';
   loadFile(file, imageId) {
-    return cornerstoneWADOImageLoader.wadouri.loadFileRequest(imageId)
+    return cornerstoneWADOImageLoader.wadouri.loadFileRequest(imageId);
   }
 
   getDataset(image, imageId) {
-    let dataset = {}
+    let dataset = {};
     try {
-      const dicomData = dcmjs.data.DicomMessage.readFile(image)
+      const dicomData = dcmjs.data.DicomMessage.readFile(image);
 
-      dataset = dcmjs.data.DicomMetaDictionary.naturalizeDataset(dicomData.dict)
+      dataset = dcmjs.data.DicomMetaDictionary.naturalizeDataset(
+        dicomData.dict
+      );
 
-      metadataProvider.addInstance(dataset)
+      metadataProvider.addInstance(dataset);
 
-      dataset._meta = dcmjs.data.DicomMetaDictionary.namifyDataset(dicomData.meta)
+      dataset._meta = dcmjs.data.DicomMetaDictionary.namifyDataset(
+        dicomData.meta
+      );
     } catch (e) {
-      console.error('Error reading dicom file', e)
+      console.error('Error reading dicom file', e);
     }
     // Set imageId on dataset to be consumed later on
-    dataset.imageId = imageId
+    dataset.imageId = imageId;
 
-    return dataset
+    return dataset;
   }
 
   getStudies(dataset, imageId) {
-    return this.getStudyFromDataset(dataset)
+    return this.getStudyFromDataset(dataset);
   }
 
   getStudyFromDataset(dataset = {}) {
@@ -51,19 +55,19 @@ const DICOMFileLoader = new (class extends FileLoader {
       SeriesDescription,
       SeriesNumber,
       imageId,
-    } = dataset
+    } = dataset;
 
     const instance = {
       metadata: dataset,
       url: imageId,
-    }
+    };
 
     const series = {
       SeriesInstanceUID: SeriesInstanceUID,
       SeriesDescription: SeriesDescription,
       SeriesNumber: SeriesNumber,
       instances: [instance],
-    }
+    };
 
     const study = {
       StudyInstanceUID,
@@ -86,10 +90,10 @@ const DICOMFileLoader = new (class extends FileLoader {
       modalities:
       */
       series: [series],
-    }
+    };
 
-    return study
+    return study;
   }
-})()
+})();
 
-export default DICOMFileLoader
+export default DICOMFileLoader;

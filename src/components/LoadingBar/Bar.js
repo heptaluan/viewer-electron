@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 const Bar = ({ progress, animationDuration }) => (
   <div
@@ -27,6 +27,6 @@ const Bar = ({ progress, animationDuration }) => (
       }}
     />
   </div>
-)
+);
 
-export default Bar
+export default Bar;

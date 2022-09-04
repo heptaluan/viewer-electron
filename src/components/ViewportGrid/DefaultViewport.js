@@ -6,5 +6,5 @@
  * @returns
  */
 export default function DefaultViewport(props) {
-  return <div>{JSON.stringify(props)}</div>
+  return <div>{JSON.stringify(props)}</div>;
 }

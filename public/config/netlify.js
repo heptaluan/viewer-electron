@@ -125,4 +125,4 @@ window.config = {
     LOCIZE_API_KEY: null, // Developers can use this to do in-context editing. DO NOT COMMIT THIS KEY!
     USE_LOCIZE: true,
   },
-}
+};

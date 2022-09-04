@@ -1,19 +1,18 @@
-import './SidePanel.css'
+import './SidePanel.css';
 
-import React from 'react'
-import PropTypes from 'prop-types'
-import classNames from 'classnames'
+import React from 'react';
+import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 const SidePanel = ({ from, isOpen, children, width }) => {
-  const fromSideClass = from === 'right' ? 'from-right' : 'from-left'
+  const fromSideClass = from === 'right' ? 'from-right' : 'from-left';
 
   const styles = width
     ? {
         maxWidth: width,
         marginRight: isOpen ? '0' : Number.parseInt(width) * -1,
-        border: '1px solid #ccc'
       }
-    : {}
+    : {};
 
   return (
     <section
@@ -24,14 +23,14 @@ const SidePanel = ({ from, isOpen, children, width }) => {
     >
       {children}
     </section>
-  )
-}
+  );
+};
 
 SidePanel.propTypes = {
   from: PropTypes.string.isRequired,
   isOpen: PropTypes.bool.isRequired,
   children: PropTypes.node,
   width: PropTypes.string,
-}
+};
 
-export default SidePanel
+export default SidePanel;

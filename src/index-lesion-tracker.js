@@ -3,11 +3,11 @@
  * Packaged (NPM) builds go through `index-umd.js`
  */
 
-import 'regenerator-runtime/runtime'
+import 'regenerator-runtime/runtime';
 
-import App from './App.js'
-import React from 'react'
-import ReactDOM from 'react-dom'
+import App from './App.js';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 /**
  * EXTENSIONS
@@ -22,25 +22,25 @@ import ReactDOM from 'react-dom'
  * by using the exported `App` component, and passing in your extensions as props using
  * the defaultExtensions property.
  */
-import OHIFLesionTrackerExtension from '@ohif/extension-lesion-tracker'
-import OHIFDicomPDFExtension from '@ohif/extension-dicom-pdf'
+import OHIFLesionTrackerExtension from '@ohif/extension-lesion-tracker';
+import OHIFDicomPDFExtension from '@ohif/extension-dicom-pdf';
 
 /*
  * Default Settings
  */
-let config = {}
+let config = {};
 
 if (window) {
-  config = window.config || {}
+  config = window.config || {};
 }
 
 const appProps = {
   config,
   defaultExtensions: [OHIFLesionTrackerExtension, OHIFDicomPDFExtension],
-}
+};
 
 /** Create App */
-const app = React.createElement(App, appProps, null)
+const app = React.createElement(App, appProps, null);
 
 /** Render */
-ReactDOM.render(app, document.getElementById('root'))
+ReactDOM.render(app, document.getElementById('root'));

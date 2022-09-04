@@ -1,28 +1,29 @@
-import ViewportGrid from './ViewportGrid.js'
-import { MODULE_TYPES } from '@ohif/core'
-import { connect } from 'react-redux'
-import { extensionManager } from './../../App.js'
-import memoize from 'lodash/memoize'
+import ViewportGrid from './ViewportGrid.js';
+import { MODULE_TYPES } from '@ohif/core';
+import { connect } from 'react-redux';
+import { extensionManager } from './../../App.js';
+import memoize from 'lodash/memoize';
 
-const getAvailableViewportModules = memoize((viewportModules) => {
-  const availableViewportModules = {}
-  viewportModules.forEach((moduleDefinition) => {
-    availableViewportModules[moduleDefinition.extensionId] = moduleDefinition.module
-  })
-  return availableViewportModules
-})
+const getAvailableViewportModules = memoize(viewportModules => {
+  const availableViewportModules = {};
+  viewportModules.forEach(moduleDefinition => {
+    availableViewportModules[moduleDefinition.extensionId] =
+      moduleDefinition.module;
+  });
+  return availableViewportModules;
+});
 
-const mapStateToProps = (state) => {
-  const viewportModules = extensionManager.modules[MODULE_TYPES.VIEWPORT]
-  const availableViewportModules = getAvailableViewportModules(viewportModules)
+const mapStateToProps = state => {
+  const viewportModules = extensionManager.modules[MODULE_TYPES.VIEWPORT];
+  const availableViewportModules = getAvailableViewportModules(viewportModules);
 
   // TODO: Use something like state.plugins.defaultPlugin[MODULE_TYPES.VIEWPORT]
-  let defaultPlugin
+  let defaultPlugin;
   if (viewportModules.length) {
-    defaultPlugin = viewportModules[0].extensionId
+    defaultPlugin = viewportModules[0].extensionId;
   }
 
-  const { numRows, numColumns, layout, activeViewportIndex } = state.viewports
+  const { numRows, numColumns, layout, activeViewportIndex } = state.viewports;
 
   return {
     numRows,
@@ -33,9 +34,12 @@ const mapStateToProps = (state) => {
     availablePlugins: availableViewportModules,
     // TODO: rename `defaultViewportModule`
     defaultPlugin,
-  }
-}
+  };
+};
 
-const ConnectedViewportGrid = connect(mapStateToProps, null)(ViewportGrid)
+const ConnectedViewportGrid = connect(
+  mapStateToProps,
+  null
+)(ViewportGrid);
 
-export default ConnectedViewportGrid
+export default ConnectedViewportGrid;

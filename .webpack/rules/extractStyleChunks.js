@@ -1,4 +1,4 @@
-const ExtractCssChunksPlugin = require('extract-css-chunks-webpack-plugin')
+const ExtractCssChunksPlugin = require('extract-css-chunks-webpack-plugin');
 
 function extractStyleChunks(isProdBuild) {
   return [
@@ -29,7 +29,7 @@ function extractStyleChunks(isProdBuild) {
         // 'sass-loader',
       ],
     },
-  ]
+  ];
 }
 
-module.exports = extractStyleChunks
+module.exports = extractStyleChunks;

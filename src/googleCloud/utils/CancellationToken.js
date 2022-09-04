@@ -1,13 +1,13 @@
 export default class CancellationToken {
   constructor() {
-    this.cancelled = false
+    this.cancelled = false;
   }
 
   get() {
-    return this.cancelled
+    return this.cancelled;
   }
 
   set(value) {
-    this.cancelled = value
+    this.cancelled = value;
   }
 }

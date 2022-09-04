@@ -1,42 +1,42 @@
 // https://developers.google.com/web/tools/workbox/guides/codelabs/webpack
 // ~~ WebPack
-const path = require('path')
-const merge = require('webpack-merge')
-const webpack = require('webpack')
-const webpackBase = require('./../../../.webpack/webpack.base.js')
+const path = require('path');
+const merge = require('webpack-merge');
+const webpack = require('webpack');
+const webpackBase = require('./../../../.webpack/webpack.base.js');
 // ~~ Plugins
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
-const ExtractCssChunksPlugin = require('extract-css-chunks-webpack-plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const { InjectManifest } = require('workbox-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const ExtractCssChunksPlugin = require('extract-css-chunks-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { InjectManifest } = require('workbox-webpack-plugin');
 // ~~ Rules
-const extractStyleChunksRule = require('./rules/extractStyleChunks.js')
+const extractStyleChunksRule = require('./rules/extractStyleChunks.js');
 // ~~ Directories
-const SRC_DIR = path.join(__dirname, '../src')
-const DIST_DIR = path.join(__dirname, '../dist')
-const PUBLIC_DIR = path.join(__dirname, '../public')
+const SRC_DIR = path.join(__dirname, '../src');
+const DIST_DIR = path.join(__dirname, '../dist');
+const PUBLIC_DIR = path.join(__dirname, '../public');
 // ~~ Env Vars
-const HTML_TEMPLATE = process.env.HTML_TEMPLATE || 'index.html'
-const PUBLIC_URL = process.env.PUBLIC_URL || '/'
-const APP_CONFIG = process.env.APP_CONFIG || 'config/default.js'
-const PROXY_TARGET = process.env.PROXY_TARGET
-const PROXY_DOMAIN = process.env.PROXY_DOMAIN
-const ENTRY_TARGET = process.env.ENTRY_TARGET || `${SRC_DIR}/index.js`
+const HTML_TEMPLATE = process.env.HTML_TEMPLATE || 'index.html';
+const PUBLIC_URL = process.env.PUBLIC_URL || '/';
+const APP_CONFIG = process.env.APP_CONFIG || 'config/default.js';
+const PROXY_TARGET = process.env.PROXY_TARGET;
+const PROXY_DOMAIN = process.env.PROXY_DOMAIN;
+const ENTRY_TARGET = process.env.ENTRY_TARGET || `${SRC_DIR}/index.js`;
 
 const setHeaders = (res, path) => {
-  res.setHeader('Content-Type', 'text/plain')
+  res.setHeader('Content-Type', 'text/plain');
   if (path.indexOf('.gz') !== -1) {
-    res.setHeader('Content-Encoding', 'gzip')
+    res.setHeader('Content-Encoding', 'gzip');
   } else if (path.indexOf('.br') !== -1) {
-    res.setHeader('Content-Encoding', 'br')
+    res.setHeader('Content-Encoding', 'br');
   }
-}
+};
 
 module.exports = (env, argv) => {
-  const baseConfig = webpackBase(env, argv, { SRC_DIR, DIST_DIR })
-  const isProdBuild = process.env.NODE_ENV === 'production'
-  const hasProxy = PROXY_TARGET && PROXY_DOMAIN
+  const baseConfig = webpackBase(env, argv, { SRC_DIR, DIST_DIR });
+  const isProdBuild = process.env.NODE_ENV === 'production';
+  const hasProxy = PROXY_TARGET && PROXY_DOMAIN;
 
   const mergedConfig = merge(baseConfig, {
     entry: {
@@ -46,11 +46,11 @@ module.exports = (env, argv) => {
       path: DIST_DIR,
       filename: isProdBuild ? '[name].bundle.[chunkhash].js' : '[name].js',
       publicPath: PUBLIC_URL, // Used by HtmlWebPackPlugin for asset prefix
-      devtoolModuleFilenameTemplate: function (info) {
+      devtoolModuleFilenameTemplate: function(info) {
         if (isProdBuild) {
-          return `webpack:///${info.resourcePath}`
+          return `webpack:///${info.resourcePath}`;
         } else {
-          return 'file:///' + encodeURI(info.absoluteResourcePath)
+          return 'file:///' + encodeURI(info.absoluteResourcePath);
         }
       },
     },
@@ -94,7 +94,8 @@ module.exports = (env, argv) => {
           to: `${DIST_DIR}/app-config.js`,
         },
         {
-          from: '../../../node_modules/cornerstone-wado-image-loader/dist/dynamic-import',
+          from:
+            '../../../node_modules/cornerstone-wado-image-loader/dist/dynamic-import',
           to: DIST_DIR,
         },
       ]),
@@ -175,16 +176,16 @@ module.exports = (env, argv) => {
         'Cross-Origin-Opener-Policy': 'same-origin',
       },
     },
-  })
+  });
 
   if (hasProxy) {
-    mergedConfig.devServer.proxy = {}
-    mergedConfig.devServer.proxy[PROXY_TARGET] = PROXY_DOMAIN
+    mergedConfig.devServer.proxy = {};
+    mergedConfig.devServer.proxy[PROXY_TARGET] = PROXY_DOMAIN;
   }
 
   if (!isProdBuild) {
-    mergedConfig.plugins.push(new webpack.HotModuleReplacementPlugin())
+    mergedConfig.plugins.push(new webpack.HotModuleReplacementPlugin());
   }
 
-  return mergedConfig
-}
+  return mergedConfig;
+};

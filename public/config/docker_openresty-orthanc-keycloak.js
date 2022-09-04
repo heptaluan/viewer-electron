@@ -37,4 +37,4 @@ window.config = {
       post_logout_redirect_uri: '/logout-redirect.html',
     },
   ],
-}
+};

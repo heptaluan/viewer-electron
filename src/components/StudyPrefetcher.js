@@ -1,15 +1,20 @@
-import React, { useEffect } from 'react'
-import { classes, utils } from '@ohif/core'
-import PropTypes from 'prop-types'
-import cs from 'cornerstone-core'
+import React, { useEffect } from 'react';
+import { classes, utils } from '@ohif/core';
+import PropTypes from 'prop-types';
+import cs from 'cornerstone-core';
 
-import './StudyPrefetcher.css'
+import './StudyPrefetcher.css';
 
 const StudyPrefetcher = ({ studies, options }) => {
   useEffect(() => {
-    const studyPrefetcher = classes.StudyPrefetcher.getInstance(studies, options)
-    const studiesMetadata = studies.map((s) => utils.studyMetadataManager.get(s.StudyInstanceUID))
-    studyPrefetcher.setStudies(studiesMetadata)
+    const studyPrefetcher = classes.StudyPrefetcher.getInstance(
+      studies,
+      options
+    );
+    const studiesMetadata = studies.map(s =>
+      utils.studyMetadataManager.get(s.StudyInstanceUID)
+    );
+    studyPrefetcher.setStudies(studiesMetadata);
 
     const onNewImage = ({ detail }) => {
       /**
@@ -18,40 +23,50 @@ const StudyPrefetcher = ({ studies, options }) => {
        *
        * This code add display sets and updates the study prefetcher metadata.
        */
-      const studiesMetadata = studies.map((s) => {
-        const studyMetadata = utils.studyMetadataManager.get(s.StudyInstanceUID)
-        const displaySets = studyMetadata.getDisplaySets()
+      const studiesMetadata = studies.map(s => {
+        const studyMetadata = utils.studyMetadataManager.get(
+          s.StudyInstanceUID
+        );
+        const displaySets = studyMetadata.getDisplaySets();
         if (!displaySets || displaySets.length < 1) {
-          s.displaySets.forEach((ds) => studyMetadata.addDisplaySet(ds))
+          s.displaySets.forEach(ds => studyMetadata.addDisplaySet(ds));
         }
-        return studyMetadata
-      })
-      studyPrefetcher.setStudies(studiesMetadata)
+        return studyMetadata;
+      });
+      studyPrefetcher.setStudies(studiesMetadata);
 
-      const study = studyPrefetcher.getStudy(detail.image)
-      const series = studyPrefetcher.getSeries(study, detail.image)
-      const instance = studyPrefetcher.getInstance(series, detail.image)
+      const study = studyPrefetcher.getStudy(detail.image);
+      const series = studyPrefetcher.getSeries(study, detail.image);
+      const instance = studyPrefetcher.getInstance(series, detail.image);
 
       if (study.displaySets && study.displaySets.length > 0) {
-        const { displaySetInstanceUID } = studyPrefetcher.getDisplaySetBySOPInstanceUID(study.displaySets, instance)
-        studyPrefetcher.prefetch(detail.element, displaySetInstanceUID)
+        const {
+          displaySetInstanceUID,
+        } = studyPrefetcher.getDisplaySetBySOPInstanceUID(
+          study.displaySets,
+          instance
+        );
+        studyPrefetcher.prefetch(detail.element, displaySetInstanceUID);
       }
-    }
+    };
 
     const onElementEnabled = ({ detail }) => {
-      detail.element.addEventListener(cs.EVENTS.NEW_IMAGE, onNewImage)
-    }
+      detail.element.addEventListener(cs.EVENTS.NEW_IMAGE, onNewImage);
+    };
 
-    cs.events.addEventListener(cs.EVENTS.ELEMENT_ENABLED, onElementEnabled)
+    cs.events.addEventListener(cs.EVENTS.ELEMENT_ENABLED, onElementEnabled);
 
     return () => {
-      cs.events.removeEventListener(cs.EVENTS.ELEMENT_ENABLED, onElementEnabled)
-      studyPrefetcher.destroy()
-    }
-  }, [options, studies])
+      cs.events.removeEventListener(
+        cs.EVENTS.ELEMENT_ENABLED,
+        onElementEnabled
+      );
+      studyPrefetcher.destroy();
+    };
+  }, [options, studies]);
 
-  return null
-}
+  return null;
+};
 
 StudyPrefetcher.propTypes = {
   studies: PropTypes.array.isRequired,
@@ -63,7 +78,7 @@ StudyPrefetcher.propTypes = {
     prefetchDisplaySetsTimeout: PropTypes.number,
     includeActiveDisplaySet: PropTypes.bool,
   }),
-}
+};
 
 StudyPrefetcher.defaultProps = {
   options: {
@@ -73,6 +88,6 @@ StudyPrefetcher.defaultProps = {
     prefetchDisplaySetsTimeout: 300,
     includeActiveDisplaySet: false,
   },
-}
+};
 
-export default StudyPrefetcher
+export default StudyPrefetcher;

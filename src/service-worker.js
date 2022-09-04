@@ -7,11 +7,11 @@
 //
 
 // Embedded version
-importScripts('/third_party/workbox/workbox-v5.1.4/workbox-sw.js')
+importScripts('/third_party/workbox/workbox-v5.1.4/workbox-sw.js');
 
 workbox.setConfig({
   modulePathPrefix: '/third_party/workbox/workbox-v5.1.4/',
-})
+});
 
 // Internet version
 /*
@@ -22,8 +22,8 @@ importScripts(
 
 // Install newest
 // https://developers.google.com/web/tools/workbox/modules/workbox-core
-workbox.core.skipWaiting()
-workbox.core.clientsClaim()
+workbox.core.skipWaiting();
+workbox.core.clientsClaim();
 
 // Cache static assets that aren't precached
 workbox.routing.registerRoute(
@@ -31,7 +31,7 @@ workbox.routing.registerRoute(
   new workbox.strategies.StaleWhileRevalidate({
     cacheName: 'static-resources',
   })
-)
+);
 
 // Cache the Google Fonts stylesheets with a stale-while-revalidate strategy.
 workbox.routing.registerRoute(
@@ -39,7 +39,7 @@ workbox.routing.registerRoute(
   new workbox.strategies.StaleWhileRevalidate({
     cacheName: 'google-fonts-stylesheets',
   })
-)
+);
 
 // Cache the underlying font files with a cache-first strategy for 1 year.
 workbox.routing.registerRoute(
@@ -56,10 +56,10 @@ workbox.routing.registerRoute(
       }),
     ],
   })
-)
+);
 
 // MESSAGE HANDLER
-self.addEventListener('message', (event) => {
+self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     switch (event.data.type) {
       case 'SKIP_WAITING':
@@ -67,15 +67,15 @@ self.addEventListener('message', (event) => {
         // workbox.core.skipWaiting();
         // workbox.core.clientsClaim();
         // TODO: Global notification to indicate incoming reload
-        break
+        break;
 
       default:
-        console.warn(`SW: Invalid message type: ${event.data.type}`)
+        console.warn(`SW: Invalid message type: ${event.data.type}`);
     }
   }
-})
+});
 
-workbox.precaching.precacheAndRoute(self.__WB_MANIFEST)
+workbox.precaching.precacheAndRoute(self.__WB_MANIFEST);
 
 // TODO: Cache API
 // https://developers.google.com/web/fundamentals/instant-and-offline/web-storage/cache-api

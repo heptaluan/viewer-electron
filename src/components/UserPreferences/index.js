@@ -1,1 +1,1 @@
-export { UserPreferences } from './UserPreferences'
+export { UserPreferences } from './UserPreferences';

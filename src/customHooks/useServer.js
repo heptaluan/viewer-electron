@@ -1,25 +1,30 @@
-import React, { useContext } from 'react'
-import GoogleCloudApi from '../googleCloud/api/GoogleCloudApi'
-import usePrevious from './usePrevious'
+import React, { useContext } from 'react';
+import GoogleCloudApi from '../googleCloud/api/GoogleCloudApi';
+import usePrevious from './usePrevious';
 
-import * as GoogleCloudUtilServers from '../googleCloud/utils/getServers'
-import { useSelector, useDispatch } from 'react-redux'
-import isEqual from 'lodash.isequal'
+import * as GoogleCloudUtilServers from '../googleCloud/utils/getServers';
+import { useSelector, useDispatch } from 'react-redux';
+import isEqual from 'lodash.isequal';
 
 // Contexts
-import AppContext from '../context/AppContext'
+import AppContext from '../context/AppContext';
 
-const getActiveServer = (servers) => {
-  const isActive = (a) => a.active === true
+const getActiveServer = servers => {
+  const isActive = a => a.active === true;
 
-  return servers && servers.servers && servers.servers.find(isActive)
-}
+  return servers && servers.servers && servers.servers.find(isActive);
+};
 
 const getServers = (appConfig, project, location, dataset, dicomStore) => {
-  let servers = []
+  let servers = [];
   if (appConfig.enableGoogleCloudAdapter) {
-    GoogleCloudApi.urlBase = appConfig.healthcareApiEndpoint
-    const pathUrl = GoogleCloudApi.getUrlBaseDicomWeb(project, location, dataset, dicomStore)
+    GoogleCloudApi.urlBase = appConfig.healthcareApiEndpoint;
+    const pathUrl = GoogleCloudApi.getUrlBaseDicomWeb(
+      project,
+      location,
+      dataset,
+      dicomStore
+    );
     const data = {
       project,
       location,
@@ -28,31 +33,31 @@ const getServers = (appConfig, project, location, dataset, dicomStore) => {
       wadoUriRoot: pathUrl,
       qidoRoot: pathUrl,
       wadoRoot: pathUrl,
-    }
-    servers = GoogleCloudUtilServers.getServers(data, dicomStore)
+    };
+    servers = GoogleCloudUtilServers.getServers(data, dicomStore);
     if (!isValidServer(servers[0], appConfig)) {
-      return
+      return;
     }
   }
 
-  return servers
-}
+  return servers;
+};
 
 const isValidServer = (server, appConfig) => {
   if (appConfig.enableGoogleCloudAdapter) {
-    return GoogleCloudUtilServers.isValidServer(server)
+    return GoogleCloudUtilServers.isValidServer(server);
   }
 
-  return !!server
-}
+  return !!server;
+};
 
 const setServers = (dispatch, servers) => {
   const action = {
     type: 'SET_SERVERS',
     servers,
-  }
-  dispatch(action)
-}
+  };
+  dispatch(action);
+};
 
 const useServerFromUrl = (
   servers = [],
@@ -67,41 +72,49 @@ const useServerFromUrl = (
 ) => {
   // update state from url available only when gcloud on
   if (!appConfig.enableGoogleCloudAdapter) {
-    return false
+    return false;
   }
 
-  const serverHasChanged = previousServers !== servers && previousServers
+  const serverHasChanged = previousServers !== servers && previousServers;
 
   // do not update from url. use state instead.
   if (serverHasChanged) {
-    return false
+    return false;
   }
 
   // if no valid urlbased servers
   if (!urlBasedServers || !urlBasedServers.length) {
-    return false
+    return false;
   } else if (!servers.length || !activeServer) {
     // no current valid server
-    return true
+    return true;
   }
 
-  const newServer = urlBasedServers[0]
+  const newServer = urlBasedServers[0];
 
-  let exists = servers.some(GoogleCloudUtilServers.isEqualServer.bind(undefined, newServer))
+  let exists = servers.some(
+    GoogleCloudUtilServers.isEqualServer.bind(undefined, newServer)
+  );
 
-  return !exists
-}
+  return !exists;
+};
 
-export default function useServer({ project, location, dataset, dicomStore } = {}) {
+export default function useServer({
+  project,
+  location,
+  dataset,
+  dicomStore,
+} = {}) {
   // Hooks
-  const servers = useSelector((state) => state && state.servers)
-  const previousServers = usePrevious(servers)
-  const dispatch = useDispatch()
+  const servers = useSelector(state => state && state.servers);
+  const previousServers = usePrevious(servers);
+  const dispatch = useDispatch();
 
-  const { appConfig = {} } = useContext(AppContext)
+  const { appConfig = {} } = useContext(AppContext);
 
-  const activeServer = getActiveServer(servers)
-  const urlBasedServers = getServers(appConfig, project, location, dataset, dicomStore) || []
+  const activeServer = getActiveServer(servers);
+  const urlBasedServers =
+    getServers(appConfig, project, location, dataset, dicomStore) || [];
   const shouldUpdateServer = useServerFromUrl(
     servers.servers,
     previousServers,
@@ -112,11 +125,11 @@ export default function useServer({ project, location, dataset, dicomStore } = {
     location,
     dataset,
     dicomStore
-  )
+  );
 
   if (shouldUpdateServer) {
-    setServers(dispatch, urlBasedServers)
+    setServers(dispatch, urlBasedServers);
   } else if (isValidServer(activeServer, appConfig)) {
-    return activeServer
+    return activeServer;
   }
 }

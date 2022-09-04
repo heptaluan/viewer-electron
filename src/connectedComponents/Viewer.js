@@ -1,29 +1,29 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import classNames from 'classnames'
-import OHIF, { MODULE_TYPES, DICOMSR } from '@ohif/core'
-import { withDialog } from '@ohif/ui'
-import moment from 'moment'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import classNames from 'classnames';
+import OHIF, { MODULE_TYPES, DICOMSR } from '@ohif/core';
+import { withDialog } from '@ohif/ui';
+import moment from 'moment';
 
-import ConnectedHeader from './ConnectedHeader.js'
-import ToolbarRow from './ToolbarRow.js'
-import ConnectedStudyBrowser from './ConnectedStudyBrowser.js'
-import ConnectedViewerMain from './ConnectedViewerMain.js'
-import SidePanel from './../components/SidePanel.js'
-import ErrorBoundaryDialog from './../components/ErrorBoundaryDialog'
-import { extensionManager, servicesManager } from './../App.js'
-import { ReconstructionIssues } from './../../../core/src/enums.js'
+import ConnectedHeader from './ConnectedHeader.js';
+import ToolbarRow from './ToolbarRow.js';
+import ConnectedStudyBrowser from './ConnectedStudyBrowser.js';
+import ConnectedViewerMain from './ConnectedViewerMain.js';
+import SidePanel from './../components/SidePanel.js';
+import ErrorBoundaryDialog from './../components/ErrorBoundaryDialog';
+import { extensionManager, servicesManager } from './../App.js';
+import { ReconstructionIssues } from './../../../core/src/enums.js';
 
 // Contexts
-import WhiteLabelingContext from '../context/WhiteLabelingContext.js'
-import UserManagerContext from '../context/UserManagerContext'
-import AppContext from '../context/AppContext'
+import WhiteLabelingContext from '../context/WhiteLabelingContext.js';
+import UserManagerContext from '../context/UserManagerContext';
+import AppContext from '../context/AppContext';
 
-import './Viewer.css'
-import StudyPrefetcher from '../components/StudyPrefetcher.js'
-import StudyLoadingMonitor from '../components/StudyLoadingMonitor'
+import './Viewer.css';
+import StudyPrefetcher from '../components/StudyPrefetcher.js';
+import StudyLoadingMonitor from '../components/StudyLoadingMonitor';
 
-const { studyMetadataManager } = OHIF.utils
+const { studyMetadataManager } = OHIF.utils;
 
 class Viewer extends Component {
   static propTypes = {
@@ -62,23 +62,23 @@ class Viewer extends Component {
     activeViewportIndex: PropTypes.number.isRequired,
     isStudyLoaded: PropTypes.bool,
     dialog: PropTypes.object,
-  }
+  };
 
   constructor(props) {
-    super(props)
+    super(props);
 
-    const { activeServer } = this.props
-    const server = Object.assign({}, activeServer)
+    const { activeServer } = this.props;
+    const server = Object.assign({}, activeServer);
 
-    const external = { servicesManager }
+    const external = { servicesManager };
 
     OHIF.measurements.MeasurementApi.setConfiguration({
       dataExchange: {
-        retrieve: (server) => DICOMSR.retrieveMeasurements(server, external),
+        retrieve: server => DICOMSR.retrieveMeasurements(server, external),
         store: DICOMSR.storeMeasurements,
       },
       server,
-    })
+    });
 
     OHIF.measurements.TimepointApi.setConfiguration({
       dataExchange: {
@@ -88,9 +88,9 @@ class Viewer extends Component {
         update: this.updateTimepoint,
         disassociate: this.disassociateStudy,
       },
-    })
+    });
 
-    this._getActiveViewport = this._getActiveViewport.bind(this)
+    this._getActiveViewport = this._getActiveViewport.bind(this);
   }
 
   state = {
@@ -99,33 +99,36 @@ class Viewer extends Component {
     selectedRightSidePanel: '',
     selectedLeftSidePanel: 'studies', // TODO: Don't hardcode this
     thumbnails: [],
-  }
+  };
 
   componentWillUnmount() {
     if (this.props.dialog) {
-      this.props.dialog.dismissAll()
+      this.props.dialog.dismissAll();
     }
 
-    document.removeEventListener('segmentationLoadingError', this._updateThumbnails)
+    document.removeEventListener(
+      'segmentationLoadingError',
+      this._updateThumbnails
+    );
   }
 
-  retrieveTimepoints = (filter) => {
-    OHIF.log.info('retrieveTimepoints')
+  retrieveTimepoints = filter => {
+    OHIF.log.info('retrieveTimepoints');
 
     // Get the earliest and latest study date
-    let earliestDate = new Date().toISOString()
-    let latestDate = new Date().toISOString()
+    let earliestDate = new Date().toISOString();
+    let latestDate = new Date().toISOString();
     if (this.props.studies) {
-      latestDate = new Date('1000-01-01').toISOString()
-      this.props.studies.forEach((study) => {
-        const StudyDate = moment(study.StudyDate, 'YYYYMMDD').toISOString()
+      latestDate = new Date('1000-01-01').toISOString();
+      this.props.studies.forEach(study => {
+        const StudyDate = moment(study.StudyDate, 'YYYYMMDD').toISOString();
         if (StudyDate < earliestDate) {
-          earliestDate = StudyDate
+          earliestDate = StudyDate;
         }
         if (StudyDate > latestDate) {
-          latestDate = StudyDate
+          latestDate = StudyDate;
         }
-      })
+      });
     }
 
     // Return a generic timepoint
@@ -139,84 +142,107 @@ class Viewer extends Component {
         latestDate,
         isLocked: false,
       },
-    ])
-  }
+    ]);
+  };
 
-  storeTimepoints = (timepointData) => {
-    OHIF.log.info('storeTimepoints')
-    return Promise.resolve()
-  }
+  storeTimepoints = timepointData => {
+    OHIF.log.info('storeTimepoints');
+    return Promise.resolve();
+  };
 
   updateTimepoint = (timepointData, query) => {
-    OHIF.log.info('updateTimepoint')
-    return Promise.resolve()
-  }
+    OHIF.log.info('updateTimepoint');
+    return Promise.resolve();
+  };
 
-  removeTimepoint = (timepointId) => {
-    OHIF.log.info('removeTimepoint')
-    return Promise.resolve()
-  }
+  removeTimepoint = timepointId => {
+    OHIF.log.info('removeTimepoint');
+    return Promise.resolve();
+  };
 
   disassociateStudy = (timepointIds, StudyInstanceUID) => {
-    OHIF.log.info('disassociateStudy')
-    return Promise.resolve()
-  }
+    OHIF.log.info('disassociateStudy');
+    return Promise.resolve();
+  };
 
-  onTimepointsUpdated = (timepoints) => {
+  onTimepointsUpdated = timepoints => {
     if (this.props.onTimepointsUpdated) {
-      this.props.onTimepointsUpdated(timepoints)
+      this.props.onTimepointsUpdated(timepoints);
     }
-  }
+  };
 
-  onMeasurementsUpdated = (measurements) => {
+  onMeasurementsUpdated = measurements => {
     if (this.props.onMeasurementsUpdated) {
-      this.props.onMeasurementsUpdated(measurements)
+      this.props.onMeasurementsUpdated(measurements);
     }
-  }
+  };
 
   componentDidMount() {
-    const { studies, isStudyLoaded } = this.props
-    const { TimepointApi, MeasurementApi } = OHIF.measurements
-    const currentTimepointId = 'TimepointId'
+    const { studies, isStudyLoaded } = this.props;
+    const { TimepointApi, MeasurementApi } = OHIF.measurements;
+    const currentTimepointId = 'TimepointId';
 
     const timepointApi = new TimepointApi(currentTimepointId, {
       onTimepointsUpdated: this.onTimepointsUpdated,
-    })
+    });
 
     const measurementApi = new MeasurementApi(timepointApi, {
       onMeasurementsUpdated: this.onMeasurementsUpdated,
-    })
+    });
 
-    this.currentTimepointId = currentTimepointId
-    this.timepointApi = timepointApi
-    this.measurementApi = measurementApi
+    this.currentTimepointId = currentTimepointId;
+    this.timepointApi = timepointApi;
+    this.measurementApi = measurementApi;
 
     if (studies) {
-      const PatientID = studies[0] && studies[0].PatientID
+      const PatientID = studies[0] && studies[0].PatientID;
 
-      timepointApi.retrieveTimepoints({ PatientID })
+      timepointApi.retrieveTimepoints({ PatientID });
       if (isStudyLoaded) {
-        this.measurementApi.retrieveMeasurements(PatientID, [currentTimepointId])
+        this.measurementApi.retrieveMeasurements(PatientID, [
+          currentTimepointId,
+        ]);
       }
 
-      const activeViewport = this.props.viewports[this.props.activeViewportIndex]
-      const activeDisplaySetInstanceUID = activeViewport ? activeViewport.displaySetInstanceUID : undefined
+      const activeViewport = this.props.viewports[
+        this.props.activeViewportIndex
+      ];
+      const activeDisplaySetInstanceUID = activeViewport
+        ? activeViewport.displaySetInstanceUID
+        : undefined;
       this.setState({
-        thumbnails: _mapStudiesToThumbnails(studies, activeDisplaySetInstanceUID),
-      })
+        thumbnails: _mapStudiesToThumbnails(
+          studies,
+          activeDisplaySetInstanceUID
+        ),
+      });
     }
 
-    document.addEventListener('segmentationLoadingError', this._updateThumbnails.bind(this), false)
+    document.addEventListener(
+      'segmentationLoadingError',
+      this._updateThumbnails.bind(this),
+      false
+    );
   }
 
   componentDidUpdate(prevProps) {
-    const { studies, isStudyLoaded, activeViewportIndex, viewports } = this.props
+    const {
+      studies,
+      isStudyLoaded,
+      activeViewportIndex,
+      viewports,
+    } = this.props;
 
-    const activeViewport = viewports[activeViewportIndex]
-    const activeDisplaySetInstanceUID = activeViewport ? activeViewport.displaySetInstanceUID : undefined
+    const activeViewport = viewports[activeViewportIndex];
+    const activeDisplaySetInstanceUID = activeViewport
+      ? activeViewport.displaySetInstanceUID
+      : undefined;
 
-    const prevActiveViewport = prevProps.viewports[prevProps.activeViewportIndex]
-    const prevActiveDisplaySetInstanceUID = prevActiveViewport ? prevActiveViewport.displaySetInstanceUID : undefined
+    const prevActiveViewport =
+      prevProps.viewports[prevProps.activeViewportIndex];
+    const prevActiveDisplaySetInstanceUID = prevActiveViewport
+      ? prevActiveViewport.displaySetInstanceUID
+      : undefined;
 
     if (
       studies !== prevProps.studies ||
@@ -224,61 +250,76 @@ class Viewer extends Component {
       activeDisplaySetInstanceUID !== prevActiveDisplaySetInstanceUID
     ) {
       this.setState({
-        thumbnails: _mapStudiesToThumbnails(studies, activeDisplaySetInstanceUID),
+        thumbnails: _mapStudiesToThumbnails(
+          studies,
+          activeDisplaySetInstanceUID
+        ),
         activeDisplaySetInstanceUID,
-      })
+      });
     }
     if (isStudyLoaded && isStudyLoaded !== prevProps.isStudyLoaded) {
-      const PatientID = studies[0] && studies[0].PatientID
-      const { currentTimepointId } = this
+      const PatientID = studies[0] && studies[0].PatientID;
+      const { currentTimepointId } = this;
 
-      this.timepointApi.retrieveTimepoints({ PatientID })
-      this.measurementApi.retrieveMeasurements(PatientID, [currentTimepointId])
+      this.timepointApi.retrieveTimepoints({ PatientID });
+      this.measurementApi
+        .retrieveMeasurements(PatientID, [currentTimepointId])
+        .then(() => {
+          this._updateThumbnails();
+        });
     }
   }
 
   _updateThumbnails() {
-    const { studies, activeViewportIndex, viewports } = this.props
+    const { studies, activeViewportIndex, viewports } = this.props;
 
-    const activeViewport = viewports[activeViewportIndex]
-    const activeDisplaySetInstanceUID = activeViewport ? activeViewport.displaySetInstanceUID : undefined
+    const activeViewport = viewports[activeViewportIndex];
+    const activeDisplaySetInstanceUID = activeViewport
+      ? activeViewport.displaySetInstanceUID
+      : undefined;
 
     this.setState({
       thumbnails: _mapStudiesToThumbnails(studies, activeDisplaySetInstanceUID),
       activeDisplaySetInstanceUID,
-    })
+    });
   }
 
   _getActiveViewport() {
-    return this.props.viewports[this.props.activeViewportIndex]
+    return this.props.viewports[this.props.activeViewportIndex];
   }
 
   render() {
-    let VisiblePanelLeft, VisiblePanelRight
-    const panelExtensions = extensionManager.modules[MODULE_TYPES.PANEL]
+    let VisiblePanelLeft, VisiblePanelRight;
+    const panelExtensions = extensionManager.modules[MODULE_TYPES.PANEL];
 
-    panelExtensions.forEach((panelExt) => {
-      panelExt.module.components.forEach((comp) => {
+    panelExtensions.forEach(panelExt => {
+      panelExt.module.components.forEach(comp => {
         if (comp.id === this.state.selectedRightSidePanel) {
-          VisiblePanelRight = comp.component
+          VisiblePanelRight = comp.component;
         } else if (comp.id === this.state.selectedLeftSidePanel) {
-          VisiblePanelLeft = comp.component
+          VisiblePanelLeft = comp.component;
         }
-      })
-    })
+      });
+    });
 
     return (
       <>
         {/* HEADER */}
         <WhiteLabelingContext.Consumer>
-          {(whiteLabeling) => (
+          {whiteLabeling => (
             <UserManagerContext.Consumer>
-              {(userManager) => (
+              {userManager => (
                 <AppContext.Consumer>
-                  {(appContext) => (
+                  {appContext => (
                     <ConnectedHeader
-                      linkText={appContext.appConfig.showStudyList ? 'Study List' : undefined}
-                      linkPath={appContext.appConfig.showStudyList ? '/' : undefined}
+                      linkText={
+                        appContext.appConfig.showStudyList
+                          ? 'Study List'
+                          : undefined
+                      }
+                      linkPath={
+                        appContext.appConfig.showStudyList ? '/' : undefined
+                      }
                       userManager={userManager}
                     >
                       {whiteLabeling &&
@@ -294,36 +335,47 @@ class Viewer extends Component {
         {/* TOOLBAR */}
         <ErrorBoundaryDialog context="ToolbarRow">
           <ToolbarRow
-            activeViewport={this.props.viewports[this.props.activeViewportIndex]}
+            activeViewport={
+              this.props.viewports[this.props.activeViewportIndex]
+            }
             isLeftSidePanelOpen={this.state.isLeftSidePanelOpen}
             isRightSidePanelOpen={this.state.isRightSidePanelOpen}
-            selectedLeftSidePanel={this.state.isLeftSidePanelOpen ? this.state.selectedLeftSidePanel : ''}
-            selectedRightSidePanel={this.state.isRightSidePanelOpen ? this.state.selectedRightSidePanel : ''}
+            selectedLeftSidePanel={
+              this.state.isLeftSidePanelOpen
+                ? this.state.selectedLeftSidePanel
+                : ''
+            }
+            selectedRightSidePanel={
+              this.state.isRightSidePanelOpen
+                ? this.state.selectedRightSidePanel
+                : ''
+            }
             handleSidePanelChange={(side, selectedPanel) => {
-              const sideClicked = side && side[0].toUpperCase() + side.slice(1)
-              const openKey = `is${sideClicked}SidePanelOpen`
-              const selectedKey = `selected${sideClicked}SidePanel`
-              const updatedState = Object.assign({}, this.state)
+              const sideClicked = side && side[0].toUpperCase() + side.slice(1);
+              const openKey = `is${sideClicked}SidePanelOpen`;
+              const selectedKey = `selected${sideClicked}SidePanel`;
+              const updatedState = Object.assign({}, this.state);
 
-              const isOpen = updatedState[openKey]
-              const prevSelectedPanel = updatedState[selectedKey]
+              const isOpen = updatedState[openKey];
+              const prevSelectedPanel = updatedState[selectedKey];
               // RoundedButtonGroup returns `null` if selected button is clicked
-              const isSameSelectedPanel = prevSelectedPanel === selectedPanel || selectedPanel === null
+              const isSameSelectedPanel =
+                prevSelectedPanel === selectedPanel || selectedPanel === null;
 
-              updatedState[selectedKey] = selectedPanel || prevSelectedPanel
+              updatedState[selectedKey] = selectedPanel || prevSelectedPanel;
 
-              const isClosedOrShouldClose = !isOpen || isSameSelectedPanel
+              const isClosedOrShouldClose = !isOpen || isSameSelectedPanel;
               if (isClosedOrShouldClose) {
-                updatedState[openKey] = !updatedState[openKey]
+                updatedState[openKey] = !updatedState[openKey];
               }
 
-              this.setState(updatedState)
+              this.setState(updatedState);
             }}
             studies={this.props.studies}
           />
         </ErrorBoundaryDialog>
         <AppContext.Consumer>
-          {(appContext) => <StudyLoadingMonitor studies={this.props.studies} />}
+          {appContext => <StudyLoadingMonitor studies={this.props.studies} />}
         </AppContext.Consumer>
         {/* VIEWPORTS + SIDEPANELS */}
         <div className="FlexboxLayout">
@@ -338,19 +390,21 @@ class Viewer extends Component {
                 />
               ) : (
                 <AppContext.Consumer>
-                  {(appContext) => {
-                    const { appConfig } = appContext
-                    const { studyPrefetcher } = appConfig
-                    const { thumbnails } = this.state
+                  {appContext => {
+                    const { appConfig } = appContext;
+                    const { studyPrefetcher } = appConfig;
+                    const { thumbnails } = this.state;
                     return (
                       <ConnectedStudyBrowser
                         studies={thumbnails}
                         studyMetadata={this.props.studies}
                         showThumbnailProgressBar={
-                          studyPrefetcher && studyPrefetcher.enabled && studyPrefetcher.displayProgress
+                          studyPrefetcher &&
+                          studyPrefetcher.enabled &&
+                          studyPrefetcher.displayProgress
                         }
                       />
-                    )
+                    );
                   }}
                 </AppContext.Consumer>
               )}
@@ -361,17 +415,25 @@ class Viewer extends Component {
           <div className={classNames('main-content')}>
             <ErrorBoundaryDialog context="ViewerMain">
               <AppContext.Consumer>
-                {(appContext) => {
-                  const { appConfig } = appContext
-                  const { studyPrefetcher } = appConfig
-                  const { studies } = this.props
+                {appContext => {
+                  const { appConfig } = appContext;
+                  const { studyPrefetcher } = appConfig;
+                  const { studies } = this.props;
                   return (
                     studyPrefetcher &&
-                    studyPrefetcher.enabled && <StudyPrefetcher studies={studies} options={studyPrefetcher} />
-                  )
+                    studyPrefetcher.enabled && (
+                      <StudyPrefetcher
+                        studies={studies}
+                        options={studyPrefetcher}
+                      />
+                    )
+                  );
                 }}
               </AppContext.Consumer>
-              <ConnectedViewerMain studies={this.props.studies} isStudyLoaded={this.props.isStudyLoaded} />
+              <ConnectedViewerMain
+                studies={this.props.studies}
+                isStudyLoaded={this.props.isStudyLoaded}
+              />
             </ErrorBoundaryDialog>
           </div>
 
@@ -384,7 +446,9 @@ class Viewer extends Component {
                   viewports={this.props.viewports}
                   studies={this.props.studies}
                   activeIndex={this.props.activeViewportIndex}
-                  activeViewport={this.props.viewports[this.props.activeViewportIndex]}
+                  activeViewport={
+                    this.props.viewports[this.props.activeViewportIndex]
+                  }
                   getActiveViewport={this._getActiveViewport}
                 />
               )}
@@ -392,11 +456,11 @@ class Viewer extends Component {
           </ErrorBoundaryDialog>
         </div>
       </>
-    )
+    );
   }
 }
 
-export default withDialog(Viewer)
+export default withDialog(Viewer);
 
 /**
  * Async function to check if the displaySet has any derived one
@@ -405,20 +469,23 @@ export default withDialog(Viewer)
  * @param {*object} study
  * @returns {bool}
  */
-const _checkForDerivedDisplaySets = async function (displaySet, study) {
-  let derivedDisplaySetsNumber = 0
-  if (displaySet.Modality && !['SEG', 'SR', 'RTSTRUCT', 'RTDOSE'].includes(displaySet.Modality)) {
-    const studyMetadata = studyMetadataManager.get(study.StudyInstanceUID)
+const _checkForDerivedDisplaySets = async function(displaySet, study) {
+  let derivedDisplaySetsNumber = 0;
+  if (
+    displaySet.Modality &&
+    !['SEG', 'SR', 'RTSTRUCT'].includes(displaySet.Modality)
+  ) {
+    const studyMetadata = studyMetadataManager.get(study.StudyInstanceUID);
 
     const derivedDisplaySets = studyMetadata.getDerivedDatasets({
       referencedSeriesInstanceUID: displaySet.SeriesInstanceUID,
-    })
+    });
 
-    derivedDisplaySetsNumber = derivedDisplaySets.length
+    derivedDisplaySetsNumber = derivedDisplaySets.length;
   }
 
-  return derivedDisplaySetsNumber > 0
-}
+  return derivedDisplaySetsNumber > 0;
+};
 
 /**
  * Async function to check if there are any inconsistences in the series.
@@ -437,65 +504,82 @@ const _checkForDerivedDisplaySets = async function (displaySet, study) {
  * @param {*object} displaySet
  * @returns {[string]} an array of strings containing the warnings
  */
-const _checkForSeriesInconsistencesWarnings = async function (displaySet) {
+const _checkForSeriesInconsistencesWarnings = async function(displaySet) {
   if (displaySet.inconsistencyWarnings) {
     // warnings already checked and cached in displaySet
-    return displaySet.inconsistencyWarnings
+    return displaySet.inconsistencyWarnings;
   }
 
-  const inconsistencyWarnings = []
+  const inconsistencyWarnings = [];
 
   if (displaySet.Modality !== 'SEG') {
-    if (displaySet.reconstructionIssues && displaySet.reconstructionIssues.length !== 0) {
-      displaySet.reconstructionIssues.forEach((warning) => {
+    if (
+      displaySet.reconstructionIssues &&
+      displaySet.reconstructionIssues.length !== 0
+    ) {
+      displaySet.reconstructionIssues.forEach(warning => {
         switch (warning) {
           case ReconstructionIssues.DATASET_4D:
-            inconsistencyWarnings.push('The dataset is 4D.')
-            break
+            inconsistencyWarnings.push('The dataset is 4D.');
+            break;
           case ReconstructionIssues.VARYING_IMAGESDIMENSIONS:
-            inconsistencyWarnings.push('The dataset frames have different dimensions (rows, columns).')
-            break
+            inconsistencyWarnings.push(
+              'The dataset frames have different dimensions (rows, columns).'
+            );
+            break;
           case ReconstructionIssues.VARYING_IMAGESCOMPONENTS:
-            inconsistencyWarnings.push('The dataset frames have different components (Sample per pixel).')
-            break
+            inconsistencyWarnings.push(
+              'The dataset frames have different components (Sample per pixel).'
+            );
+            break;
           case ReconstructionIssues.VARYING_IMAGESORIENTATION:
-            inconsistencyWarnings.push('The dataset frames have different orientation.')
-            break
+            inconsistencyWarnings.push(
+              'The dataset frames have different orientation.'
+            );
+            break;
           case ReconstructionIssues.IRREGULAR_SPACING:
-            inconsistencyWarnings.push('The dataset frames have different pixel spacing.')
-            break
+            inconsistencyWarnings.push(
+              'The dataset frames have different pixel spacing.'
+            );
+            break;
           case ReconstructionIssues.MULTIFFRAMES:
-            inconsistencyWarnings.push('The dataset is a multiframes.')
-            break
+            inconsistencyWarnings.push('The dataset is a multiframes.');
+            break;
           default:
-            break
+            break;
         }
-      })
-      inconsistencyWarnings.push('The datasets is not a reconstructable 3D volume. MPR mode is not available.')
+      });
+      inconsistencyWarnings.push(
+        'The datasets is not a reconstructable 3D volume. MPR mode is not available.'
+      );
     }
 
     if (
       displaySet.missingFrames &&
       (!displaySet.reconstructionIssues ||
         (displaySet.reconstructionIssues &&
-          !displaySet.reconstructionIssues.find((warn) => warn === ReconstructionIssues.DATASET_4D)))
+          !displaySet.reconstructionIssues.find(
+            warn => warn === ReconstructionIssues.DATASET_4D
+          )))
     ) {
-      inconsistencyWarnings.push('The datasets is missing frames: ' + displaySet.missingFrames + '.')
+      inconsistencyWarnings.push(
+        'The datasets is missing frames: ' + displaySet.missingFrames + '.'
+      );
     }
 
     if (displaySet.isSOPClassUIDSupported === false) {
-      inconsistencyWarnings.push('The datasets is not supported.')
+      inconsistencyWarnings.push('The datasets is not supported.');
     }
-    displaySet.inconsistencyWarnings = inconsistencyWarnings
+    displaySet.inconsistencyWarnings = inconsistencyWarnings;
   } else {
     if (displaySet.loadError) {
-      inconsistencyWarnings.push(displaySet.segLoadErrorMessagge)
-      displaySet.inconsistencyWarnings = inconsistencyWarnings
+      inconsistencyWarnings.push(displaySet.segLoadErrorMessagge);
+      displaySet.inconsistencyWarnings = inconsistencyWarnings;
     }
   }
 
-  return inconsistencyWarnings
-}
+  return inconsistencyWarnings;
+};
 
 /**
  * Checks if display set is active, i.e. if the series is currently shown
@@ -514,27 +598,67 @@ const _checkForSeriesInconsistencesWarnings = async function (displaySet) {
  * @param {string} activeDisplaySetInstanceUID
  * @returns {boolean} is active.
  */
-const _isDisplaySetActive = function (displaySet, studies, activeDisplaySetInstanceUID) {
-  let active = false
+const _isDisplaySetActive = function(
+  displaySet,
+  studies,
+  activeDisplaySetInstanceUID
+) {
+  let active = false;
 
-  const { displaySetInstanceUID } = displaySet
+  const { displaySetInstanceUID } = displaySet;
 
   // TO DO: in the future, we could possibly support new modalities
   // we should have a list of all modalities here, instead of having hard coded checks
-  if (displaySet.Modality !== 'SEG' && displaySet.Modality !== 'RTSTRUCT' && displaySet.Modality !== 'RTDOSE') {
-    active = activeDisplaySetInstanceUID === displaySetInstanceUID
+  if (
+    displaySet.Modality !== 'SEG' &&
+    displaySet.Modality !== 'RTSTRUCT' &&
+    displaySet.Modality !== 'SR'
+  ) {
+    active = activeDisplaySetInstanceUID === displaySetInstanceUID;
+  } else if (displaySet.Modality === 'SR') {
+    active = activeDisplaySetInstanceUID === displaySetInstanceUID;
+
+    if (!active && displaySet.getSourceDisplaySet) {
+      const referencedDisplaySet = displaySet.getSourceDisplaySet(
+        studies,
+        false
+      );
+      if (referencedDisplaySet && referencedDisplaySet.length !== 0) {
+        for (let i = 0; i < referencedDisplaySet.length; i++) {
+          if (
+            referencedDisplaySet[i].displaySetInstanceUID ===
+            activeDisplaySetInstanceUID
+          ) {
+            active = true;
+            break;
+          }
+        }
+      }
+    }
   } else if (displaySet.getSourceDisplaySet) {
     if (displaySet.Modality === 'SEG') {
-      const { referencedDisplaySet } = displaySet.getSourceDisplaySet(studies, false)
-      active = referencedDisplaySet ? activeDisplaySetInstanceUID === referencedDisplaySet.displaySetInstanceUID : false
+      const { referencedDisplaySet } = displaySet.getSourceDisplaySet(
+        studies,
+        false
+      );
+      active = referencedDisplaySet
+        ? activeDisplaySetInstanceUID ===
+          referencedDisplaySet.displaySetInstanceUID
+        : false;
     } else {
-      const referencedDisplaySet = displaySet.getSourceDisplaySet(studies, false)
-      active = referencedDisplaySet ? activeDisplaySetInstanceUID === referencedDisplaySet.displaySetInstanceUID : false
+      const referencedDisplaySet = displaySet.getSourceDisplaySet(
+        studies,
+        false
+      );
+      active = referencedDisplaySet
+        ? activeDisplaySetInstanceUID ===
+          referencedDisplaySet.displaySetInstanceUID
+        : false;
     }
   }
 
-  return active
-}
+  return active;
+};
 
 /**
  * What types are these? Why do we have "mapping" dropped in here instead of in
@@ -546,35 +670,46 @@ const _isDisplaySetActive = function (displaySet, studies, activeDisplaySetInsta
  * @param {Study[]} studies
  * @param {string} activeDisplaySetInstanceUID
  */
-const _mapStudiesToThumbnails = function (studies, activeDisplaySetInstanceUID) {
-  return studies.map((study) => {
-    const { StudyInstanceUID } = study
-    const thumbnails = study.displaySets.map((displaySet) => {
-      const { displaySetInstanceUID, SeriesDescription, numImageFrames, SeriesNumber } = displaySet
+const _mapStudiesToThumbnails = function(studies, activeDisplaySetInstanceUID) {
+  return studies.map(study => {
+    const { StudyInstanceUID } = study;
+    const thumbnails = study.displaySets.map(displaySet => {
+      const {
+        displaySetInstanceUID,
+        SeriesDescription,
+        numImageFrames,
+        SeriesNumber,
+      } = displaySet;
 
-      let imageId
-      let altImageText
+      let imageId;
+      let altImageText;
 
       if (displaySet.Modality && displaySet.Modality === 'SEG') {
-        // TODO: We want to replace this with a thumbnail showing
-        // the segmentation map on the image, but this is easier
-        // and better than what we have right now.
-        altImageText = 'SEG'
+        altImageText = 'SEG';
+      } else if (displaySet.Modality && displaySet.Modality === 'SR') {
+        altImageText = 'SR';
       } else if (displaySet.images && displaySet.images.length) {
-        const imageIndex = Math.floor(displaySet.images.length / 2)
-        imageId = displaySet.images[imageIndex].getImageId()
+        const imageIndex = Math.floor(displaySet.images.length / 2);
+        imageId = displaySet.images[imageIndex].getImageId();
       } else if (displaySet.isSOPClassUIDSupported === false) {
-        altImageText = displaySet.SOPClassUIDNaturalized
+        altImageText = displaySet.SOPClassUIDNaturalized;
       } else {
-        altImageText = displaySet.Modality ? displaySet.Modality : 'UN'
+        altImageText = displaySet.Modality ? displaySet.Modality : 'UN';
       }
 
-      const hasWarnings = _checkForSeriesInconsistencesWarnings(displaySet)
+      const hasWarnings = _checkForSeriesInconsistencesWarnings(displaySet);
 
-      const hasDerivedDisplaySets = _checkForDerivedDisplaySets(displaySet, study)
+      const hasDerivedDisplaySets = _checkForDerivedDisplaySets(
+        displaySet,
+        study
+      );
 
       return {
-        active: _isDisplaySetActive(displaySet, studies, activeDisplaySetInstanceUID),
+        active: _isDisplaySetActive(
+          displaySet,
+          studies,
+          activeDisplaySetInstanceUID
+        ),
         imageId,
         altImageText,
         displaySetInstanceUID,
@@ -583,12 +718,12 @@ const _mapStudiesToThumbnails = function (studies, activeDisplaySetInstanceUID) 
         SeriesNumber,
         hasWarnings,
         hasDerivedDisplaySets,
-      }
-    })
+      };
+    });
 
     return {
       StudyInstanceUID,
       thumbnails,
-    }
-  })
-}
+    };
+  });
+};

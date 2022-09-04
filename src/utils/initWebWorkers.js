@@ -1,8 +1,8 @@
-import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
+import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
 
-let initialized = false
+let initialized = false;
 
-const MAX_CONCURRENCY = 6
+const MAX_CONCURRENCY = 6;
 
 export default function initWebWorkers() {
   const config = {
@@ -15,10 +15,10 @@ export default function initWebWorkers() {
         strict: false,
       },
     },
-  }
+  };
 
   if (!initialized) {
-    cornerstoneWADOImageLoader.webWorkerManager.initialize(config)
-    initialized = true
+    cornerstoneWADOImageLoader.webWorkerManager.initialize(config);
+    initialized = true;
   }
 }

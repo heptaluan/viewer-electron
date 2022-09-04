@@ -1,7 +1,7 @@
-import { measurements, utils } from '@ohif/core'
-
-const { MeasurementApi } = measurements
-const { studyMetadataManager } = utils
+import { measurements, utils } from '@ohif/core';
+import { servicesManager } from './../../App.js';
+const { MeasurementApi } = measurements;
+const { studyMetadataManager } = utils;
 
 // TODO: Move this function to OHIF itself so we can use it on the OHIF measurment table (when it is finished)
 
@@ -19,43 +19,65 @@ export default function jumpToRowItem(
   timepointManagerState,
   options = { invertViewportTimepointsOrder: false, childToolKey: null }
 ) {
-  const numViewports = viewportsState.layout.viewports.length
-  const numTimepoints = timepointManagerState.timepoints.length
-  const { measurements, timepoints } = timepointManagerState
-  const numViewportsToUpdate = Math.min(numTimepoints, numViewports)
-  const { toolType, measurementNumber } = measurementData
-
-  if (options.invertViewportTimepointsOrder) {
-    timepoints.reverse()
+  const viewports = viewportsState.layout.viewports;
+  const activeViewportIndex = viewportsState.activeViewportIndex;
+  const activeViewport = viewports[activeViewportIndex];
+  if (activeViewport.vtk) {
+    const error = new Error('Measurements are not supported by the MPR mode.');
+    const { UINotificationService, LoggerService } = servicesManager.services;
+    LoggerService.error({ error, message: error.message });
+    UINotificationService.show({
+      title: 'Measurements panel',
+      message: error.message,
+      type: 'warning',
+      autoClose: true,
+    });
+    return {
+      viewportSpecificData: [],
+      layout: [], // TODO: if we need to change layout, we should return this here
+    };
   }
 
-  const measurementsForToolGroup = measurements[toolType]
+  const numViewports = viewportsState.layout.viewports.length;
+  const numTimepoints = timepointManagerState.timepoints.length;
+  const { measurements, timepoints } = timepointManagerState;
+  const numViewportsToUpdate = Math.min(numTimepoints, numViewports);
+  const { toolType, measurementNumber } = measurementData;
+
+  if (options.invertViewportTimepointsOrder) {
+    timepoints.reverse();
+  }
+
+  const measurementsForToolGroup = measurements[toolType];
 
   // Retrieve the measurements data
-  const measurementsToJumpTo = []
+  const measurementsToJumpTo = [];
   for (let i = 0; i < numViewportsToUpdate; i++) {
-    const { timepointId } = timepoints[i]
+    const { timepointId } = timepoints[i];
 
-    const dataAtThisTimepoint = measurementsForToolGroup.find((entry) => {
-      return entry.timepointId === timepointId && entry.measurementNumber === measurementNumber
-    })
+    const dataAtThisTimepoint = measurementsForToolGroup.find(entry => {
+      return (
+        entry.timepointId === timepointId &&
+        entry.measurementNumber === measurementNumber
+      );
+    });
 
     if (!dataAtThisTimepoint) {
-      measurementsToJumpTo.push(null)
-      continue
+      measurementsToJumpTo.push(null);
+      continue;
     }
 
-    let measurement = dataAtThisTimepoint
+    let measurement = dataAtThisTimepoint;
 
-    const { tool } = MeasurementApi.getToolConfiguration(toolType)
+    const { tool } = MeasurementApi.getToolConfiguration(toolType);
     if (options.childToolKey) {
-      measurement = dataAtThisTimepoint[options.childToolKey]
+      measurement = dataAtThisTimepoint[options.childToolKey];
     } else if (Array.isArray(tool.childTools)) {
-      const key = tool.childTools.find((key) => !!dataAtThisTimepoint[key])
-      measurement = dataAtThisTimepoint[key]
+      const key = tool.childTools.find(key => !!dataAtThisTimepoint[key]);
+      measurement = dataAtThisTimepoint[key];
     }
 
-    measurementsToJumpTo.push(measurement)
+    measurementsToJumpTo.push(measurement);
   }
 
   // TODO: Add a single viewports state action which allows
@@ -67,46 +89,49 @@ export default function jumpToRowItem(
 
   const displaySetContainsSopInstance = (displaySet, SOPInstanceUID) => {
     if (!displaySet.images || !displaySet.images.length) {
-      return
+      return;
     }
 
-    return displaySet.images.find((image) => image.getSOPInstanceUID() === SOPInstanceUID)
-  }
+    return displaySet.images.find(
+      image => image.getSOPInstanceUID() === SOPInstanceUID
+    );
+  };
 
-  const viewportSpecificData = []
+  const viewportSpecificData = [];
   measurementsToJumpTo.forEach((data, viewportIndex) => {
     // Skip if there is no measurement to jump
     if (!data) {
-      return
+      return;
     }
 
-    const study = studyMetadataManager.get(data.StudyInstanceUID)
+    const study = studyMetadataManager.get(data.StudyInstanceUID);
     if (!study) {
-      throw new Error('Study not found.')
+      throw new Error('Study not found.');
     }
 
-    const displaySet = study.findDisplaySet((displaySet) => {
-      return displaySetContainsSopInstance(displaySet, data.SOPInstanceUID)
-    })
+    const displaySet = study.findDisplaySet(displaySet => {
+      return displaySetContainsSopInstance(displaySet, data.SOPInstanceUID);
+    });
 
     if (!displaySet) {
-      throw new Error('Display set not found.')
+      throw new Error('Display set not found.');
     }
 
-    displaySet.SOPInstanceUID = data.SOPInstanceUID
+    displaySet.SOPInstanceUID = data.SOPInstanceUID;
     if (data.frameIndex) {
-      displaySet.frameIndex = data.frameIndex
+      displaySet.frameIndex = data.frameIndex;
     }
 
-    viewportIndex = (viewportIndex + viewportsState.activeViewportIndex) % numViewports
+    viewportIndex =
+      (viewportIndex + viewportsState.activeViewportIndex) % numViewports;
     viewportSpecificData.push({
       viewportIndex,
       displaySet,
-    })
-  })
+    });
+  });
 
   return {
     viewportSpecificData,
     layout: [], // TODO: if we need to change layout, we should return this here
-  }
+  };
 }

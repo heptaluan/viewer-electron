@@ -1,31 +1,37 @@
-import React, { useState, useEffect, useContext } from 'react'
-import PropTypes from 'prop-types'
-import OHIF from '@ohif/core'
-import { withRouter } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import { StudyList, PageToolbar, TablePagination, useDebounce, useMedia } from '@ohif/ui'
-import ConnectedHeader from '../connectedComponents/ConnectedHeader.js'
-import * as RoutesUtil from '../routes/routesUtil'
-import moment from 'moment'
-import ConnectedDicomFilesUploader from '../googleCloud/ConnectedDicomFilesUploader'
-import ConnectedDicomStorePicker from '../googleCloud/ConnectedDicomStorePicker'
-import filesToStudies from '../lib/filesToStudies.js'
+import React, { useState, useEffect, useContext } from 'react';
+import PropTypes from 'prop-types';
+import OHIF from '@ohif/core';
+import { withRouter } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import {
+  StudyList,
+  PageToolbar,
+  TablePagination,
+  useDebounce,
+  useMedia,
+} from '@ohif/ui';
+import ConnectedHeader from '../connectedComponents/ConnectedHeader.js';
+import * as RoutesUtil from '../routes/routesUtil';
+import moment from 'moment';
+import ConnectedDicomFilesUploader from '../googleCloud/ConnectedDicomFilesUploader';
+import ConnectedDicomStorePicker from '../googleCloud/ConnectedDicomStorePicker';
+import filesToStudies from '../lib/filesToStudies.js';
 
 // Contexts
-import UserManagerContext from '../context/UserManagerContext'
-import WhiteLabelingContext from '../context/WhiteLabelingContext'
-import AppContext from '../context/AppContext'
+import UserManagerContext from '../context/UserManagerContext';
+import WhiteLabelingContext from '../context/WhiteLabelingContext';
+import AppContext from '../context/AppContext';
 
-const { urlUtil: UrlUtil } = OHIF.utils
+const { urlUtil: UrlUtil } = OHIF.utils;
 
 function StudyListRoute(props) {
-  const { history, server, user, studyListFunctionsEnabled } = props
-  const [t] = useTranslation('Common')
+  const { history, server, user, studyListFunctionsEnabled } = props;
+  const [t] = useTranslation('Common');
   // ~~ STATE
   const [sort, setSort] = useState({
     fieldName: 'PatientName',
     direction: 'desc',
-  })
+  });
   const [filterValues, setFilterValues] = useState({
     studyDateTo: null,
     studyDateFrom: null,
@@ -40,31 +46,36 @@ function StudyListRoute(props) {
     accessionOrModalityOrDescription: '',
     //
     allFields: '',
-  })
-  const [studies, setStudies] = useState([])
+  });
+  const [studies, setStudies] = useState([]);
   const [searchStatus, setSearchStatus] = useState({
     isSearchingForStudies: false,
     error: null,
-  })
-  const [activeModalId, setActiveModalId] = useState(null)
-  const [rowsPerPage, setRowsPerPage] = useState(25)
-  const [pageNumber, setPageNumber] = useState(0)
-  const appContext = useContext(AppContext)
+  });
+  const [activeModalId, setActiveModalId] = useState(null);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [pageNumber, setPageNumber] = useState(0);
+  const appContext = useContext(AppContext);
   // ~~ RESPONSIVE
   const displaySize = useMedia(
-    ['(min-width: 1750px)', '(min-width: 1000px) and (max-width: 1749px)', '(max-width: 999px)'],
+    [
+      '(min-width: 1750px)',
+      '(min-width: 1000px) and (max-width: 1749px)',
+      '(max-width: 999px)',
+    ],
     ['large', 'medium', 'small'],
     'small'
-  )
+  );
   // ~~ DEBOUNCED INPUT
-  const debouncedSort = useDebounce(sort, 200)
-  const debouncedFilters = useDebounce(filterValues, 250)
+  const debouncedSort = useDebounce(sort, 200);
+  const debouncedFilters = useDebounce(filterValues, 250);
 
   // Google Cloud Adapter for DICOM Store Picking
-  const { appConfig = {} } = appContext
-  const isGoogleCHAIntegrationEnabled = !server && appConfig.enableGoogleCloudAdapter
+  const { appConfig = {} } = appContext;
+  const isGoogleCHAIntegrationEnabled =
+    !server && appConfig.enableGoogleCloudAdapter;
   if (isGoogleCHAIntegrationEnabled && activeModalId !== 'DicomStorePicker') {
-    setActiveModalId('DicomStorePicker')
+    setActiveModalId('DicomStorePicker');
   }
 
   // Called when relevant state/props are updated
@@ -73,7 +84,7 @@ function StudyListRoute(props) {
     () => {
       const fetchStudies = async () => {
         try {
-          setSearchStatus({ error: null, isSearchingForStudies: true })
+          setSearchStatus({ error: null, isSearchingForStudies: true });
 
           const response = await getStudyList(
             server,
@@ -82,86 +93,111 @@ function StudyListRoute(props) {
             rowsPerPage,
             pageNumber,
             displaySize
-          )
+          );
 
-          setStudies(response)
-          setSearchStatus({ error: null, isSearchingForStudies: false })
+          setStudies(response);
+          setSearchStatus({ error: null, isSearchingForStudies: false });
         } catch (error) {
-          console.warn(error)
-          setSearchStatus({ error: true, isFetching: false })
+          console.warn(error);
+          setSearchStatus({ error: true, isFetching: false });
         }
-      }
+      };
 
       if (server) {
-        fetchStudies()
+        fetchStudies();
       }
     },
     // TODO: Can we update studies directly?
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [debouncedFilters, debouncedSort, rowsPerPage, pageNumber, displaySize, server]
-  )
+    [
+      debouncedFilters,
+      debouncedSort,
+      rowsPerPage,
+      pageNumber,
+      displaySize,
+      server,
+    ]
+  );
 
   // TODO: Update Server
-  if (this.props.server !== prevProps.server) {
-    this.setState({
-      modalComponentId: null,
-      searchData: null,
-      studies: null,
-    });
-  }
+  // if (this.props.server !== prevProps.server) {
+  //   this.setState({
+  //     modalComponentId: null,
+  //     searchData: null,
+  //     studies: null,
+  //   });
+  // }
+
+  const onDrop = async acceptedFiles => {
+    try {
+      const studiesFromFiles = await filesToStudies(acceptedFiles);
+      setStudies(studiesFromFiles);
+    } catch (error) {
+      setSearchStatus({ isSearchingForStudies: false, error });
+    }
+  };
 
   if (searchStatus.error) {
-    return <div>Error: {JSON.stringify(searchStatus.error)}</div>
+    return <div>Error: {JSON.stringify(searchStatus.error)}</div>;
   } else if (studies === [] && !activeModalId) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
-  let healthCareApiButtons = null
-  let healthCareApiWindows = null
+  let healthCareApiButtons = null;
+  let healthCareApiWindows = null;
 
   if (appConfig.enableGoogleCloudAdapter) {
-    const isModalOpen = activeModalId === 'DicomStorePicker'
-    updateURL(isModalOpen, appConfig, server, history)
+    const isModalOpen = activeModalId === 'DicomStorePicker';
+    updateURL(isModalOpen, appConfig, server, history);
 
     healthCareApiWindows = (
-      <ConnectedDicomStorePicker studies={studies} isOpen={activeModalId === 'DicomStorePicker'} onClose={() => setActiveModalId(null)} />
-    )
+      <ConnectedDicomStorePicker
+        isOpen={activeModalId === 'DicomStorePicker'}
+        onClose={() => setActiveModalId(null)}
+      />
+    );
 
     healthCareApiButtons = (
-      <div className="form-inline btn-group pull-right" style={{ padding: '20px' }}>
-        <button className="btn btn-primary" onClick={() => setActiveModalId('DicomStorePicker')}>
+      <div
+        className="form-inline btn-group pull-right"
+        style={{ padding: '20px' }}
+      >
+        <button
+          className="btn btn-primary"
+          onClick={() => setActiveModalId('DicomStorePicker')}
+        >
           {t('Change DICOM Store')}
         </button>
       </div>
-    )
+    );
   }
 
   function handleSort(fieldName) {
-    let sortFieldName = fieldName
-    let sortDirection = 'asc'
+    let sortFieldName = fieldName;
+    let sortDirection = 'asc';
 
     if (fieldName === sort.fieldName) {
       if (sort.direction === 'asc') {
-        sortDirection = 'desc'
+        sortDirection = 'desc';
       } else {
-        sortFieldName = null
-        sortDirection = null
+        sortFieldName = null;
+        sortDirection = null;
       }
     }
 
     setSort({
       fieldName: sortFieldName,
       direction: sortDirection,
-    })
+    });
   }
 
   function handleFilterChange(fieldName, value) {
-    setFilterValues((state) => {
+    setFilterValues(state => {
       return {
         ...state,
         [fieldName]: value,
-      }
-    })
+      };
+    });
   }
 
   return (
@@ -174,11 +210,17 @@ function StudyListRoute(props) {
       ) : null}
       {healthCareApiWindows}
       <WhiteLabelingContext.Consumer>
-        {(whiteLabeling) => (
+        {whiteLabeling => (
           <UserManagerContext.Consumer>
-            {(userManager) => (
-              <ConnectedHeader useLargeLogo={true} user={user} userManager={userManager}>
-                {whiteLabeling && whiteLabeling.createLogoComponentFn && whiteLabeling.createLogoComponentFn(React)}
+            {userManager => (
+              <ConnectedHeader
+                useLargeLogo={true}
+                user={user}
+                userManager={userManager}
+              >
+                {whiteLabeling &&
+                  whiteLabeling.createLogoComponentFn &&
+                  whiteLabeling.createLogoComponentFn(React)}
               </ConnectedHeader>
             )}
           </UserManagerContext.Consumer>
@@ -186,11 +228,17 @@ function StudyListRoute(props) {
       </WhiteLabelingContext.Consumer>
       <div className="study-list-header">
         <div className="header">
-          <h1 style={{ fontSize: '18px' }}>{t('StudyList')}</h1>
+          <h1 style={{ fontWeight: 300, fontSize: '22px' }}>
+            {t('StudyList')}
+          </h1>
         </div>
         <div className="actions">
           {studyListFunctionsEnabled && healthCareApiButtons}
-          {studyListFunctionsEnabled && <PageToolbar onImport={() => setActiveModalId('DicomFilesUploader')} />}
+          {studyListFunctionsEnabled && (
+            <PageToolbar
+              onImport={() => setActiveModalId('DicomFilesUploader')}
+            />
+          )}
           <span className="study-count">{studies.length}</span>
         </div>
       </div>
@@ -203,12 +251,11 @@ function StudyListRoute(props) {
           hasError={searchStatus.error === true}
           // Rows
           studies={studies}
-          onSelectItem={(studyInstanceUID) => {
+          onSelectItem={studyInstanceUID => {
             const viewerPath = RoutesUtil.parseViewerPath(appConfig, server, {
               studyInstanceUIDs: studyInstanceUID,
-              studies,
-            })
-            history.push(viewerPath)
+            });
+            history.push(viewerPath);
           }}
           // Table Header
           sort={sort}
@@ -223,13 +270,13 @@ function StudyListRoute(props) {
           currentPage={pageNumber}
           nextPageFunc={() => setPageNumber(pageNumber + 1)}
           prevPageFunc={() => setPageNumber(pageNumber - 1)}
-          onRowsPerPageChange={(Rows) => setRowsPerPage(Rows)}
+          onRowsPerPageChange={Rows => setRowsPerPage(Rows)}
           rowsPerPage={rowsPerPage}
           recordCount={studies.length}
         />
       </div>
     </>
-  )
+  );
 }
 
 StudyListRoute.propTypes = {
@@ -239,23 +286,23 @@ StudyListRoute.propTypes = {
   user: PropTypes.object,
   history: PropTypes.object,
   studyListFunctionsEnabled: PropTypes.bool,
-}
+};
 
 StudyListRoute.defaultProps = {
   studyListFunctionsEnabled: true,
-}
+};
 
 function updateURL(isModalOpen, appConfig, server, history) {
   if (isModalOpen) {
-    return
+    return;
   }
 
-  const listPath = RoutesUtil.parseStudyListPath(appConfig, server)
+  const listPath = RoutesUtil.parseStudyListPath(appConfig, server);
 
   if (UrlUtil.paramString.isValidPath(listPath)) {
-    const { location = {} } = history
+    const { location = {} } = history;
     if (location.pathname !== listPath) {
-      history.replace(listPath)
+      history.replace(listPath);
     }
   }
 }
@@ -274,10 +321,21 @@ function updateURL(isModalOpen, appConfig, server, history) {
  * @param {string} displaySize - small, medium, large
  * @returns
  */
-async function getStudyList(server, filters, sort, rowsPerPage, pageNumber, displaySize) {
-  const { allFields, patientNameOrId, accessionOrModalityOrDescription } = filters
-  const sortFieldName = sort.fieldName || 'PatientName'
-  const sortDirection = sort.direction || 'desc'
+async function getStudyList(
+  server,
+  filters,
+  sort,
+  rowsPerPage,
+  pageNumber,
+  displaySize
+) {
+  const {
+    allFields,
+    patientNameOrId,
+    accessionOrModalityOrDescription,
+  } = filters;
+  const sortFieldName = sort.fieldName || 'PatientName';
+  const sortDirection = sort.direction || 'desc';
 
   const mappedFilters = {
     PatientID: filters.PatientID,
@@ -291,17 +349,18 @@ async function getStudyList(server, filters, sort, rowsPerPage, pageNumber, disp
     limit: rowsPerPage,
     offset: pageNumber * rowsPerPage,
     fuzzymatching: server.supportsFuzzyMatching === true,
-  }
+  };
 
   const studies = await _fetchStudies(server, mappedFilters, displaySize, {
     allFields,
     patientNameOrId,
     accessionOrModalityOrDescription,
-  })
+  });
 
   // Only the fields we use
-  const mappedStudies = studies.map((study) => {
-    const PatientName = typeof study.PatientName === 'string' ? study.PatientName : undefined
+  const mappedStudies = studies.map(study => {
+    const PatientName =
+      typeof study.PatientName === 'string' ? study.PatientName : undefined;
 
     return {
       AccessionNumber: study.AccessionNumber, // "1"
@@ -318,8 +377,8 @@ async function getStudyList(server, filters, sort, rowsPerPage, pageNumber, disp
       // studyId: "No Study ID"
       StudyInstanceUID: study.StudyInstanceUID, // "1.3.6.1.4.1.5962.99.1.3814087073.479799962.1489872804257.3.0"
       // StudyTime: "160956.0"
-    }
-  })
+    };
+  });
 
   // For our smaller displays, map our field name to a single
   // field we can actually sort by.
@@ -327,18 +386,24 @@ async function getStudyList(server, filters, sort, rowsPerPage, pageNumber, disp
     allFields: 'PatientName',
     patientNameOrId: 'PatientName',
     accessionOrModalityOrDescription: 'modalities',
-  }
-  const mappedSortFieldName = sortFieldNameMapping[sortFieldName] || sortFieldName
+  };
+  const mappedSortFieldName =
+    sortFieldNameMapping[sortFieldName] || sortFieldName;
 
-  const sortedStudies = _sortStudies(mappedStudies, mappedSortFieldName, sortDirection)
+  const sortedStudies = _sortStudies(
+    mappedStudies,
+    mappedSortFieldName,
+    sortDirection
+  );
 
   // Because we've merged multiple requests, we may have more than
   // our Rows per page. Let's `take` that number from our sorted array.
   // This "might" cause paging issues.
-  const numToTake = sortedStudies.length < rowsPerPage ? sortedStudies.length : rowsPerPage
-  const result = sortedStudies.slice(0, numToTake)
+  const numToTake =
+    sortedStudies.length < rowsPerPage ? sortedStudies.length : rowsPerPage;
+  const result = sortedStudies.slice(0, numToTake);
 
-  return result
+  return result;
 }
 
 /**
@@ -352,43 +417,45 @@ async function getStudyList(server, filters, sort, rowsPerPage, pageNumber, disp
  */
 function _sortStudies(studies, field, order) {
   // Make sure our StudyDate is in a valid format and create copy of studies array
-  const sortedStudies = studies.map((study) => {
+  const sortedStudies = studies.map(study => {
     if (!moment(study.StudyDate, 'MMM DD, YYYY', true).isValid()) {
-      study.StudyDate = moment(study.StudyDate, 'YYYYMMDD').format('MMM DD, YYYY')
+      study.StudyDate = moment(study.StudyDate, 'YYYYMMDD').format(
+        'MMM DD, YYYY'
+      );
     }
-    return study
-  })
+    return study;
+  });
 
   // Sort by field
-  sortedStudies.sort(function (a, b) {
-    let fieldA = a[field]
-    let fieldB = b[field]
+  sortedStudies.sort(function(a, b) {
+    let fieldA = a[field];
+    let fieldB = b[field];
     if (field === 'StudyDate') {
-      fieldA = moment(fieldA).toISOString()
-      fieldB = moment(fieldB).toISOString()
+      fieldA = moment(fieldA).toISOString();
+      fieldB = moment(fieldB).toISOString();
     }
 
     // Order
     if (order === 'desc') {
       if (fieldA < fieldB) {
-        return -1
+        return -1;
       }
       if (fieldA > fieldB) {
-        return 1
+        return 1;
       }
-      return 0
+      return 0;
     } else {
       if (fieldA > fieldB) {
-        return -1
+        return -1;
       }
       if (fieldA < fieldB) {
-        return 1
+        return 1;
       }
-      return 0
+      return 0;
     }
-  })
+  });
 
-  return sortedStudies
+  return sortedStudies;
 }
 
 /**
@@ -409,54 +476,64 @@ async function _fetchStudies(
   displaySize,
   { allFields, patientNameOrId, accessionOrModalityOrDescription }
 ) {
-  let queryFiltersArray = [filters]
+  let queryFiltersArray = [filters];
 
   if (displaySize === 'small') {
     const firstSet = _getQueryFiltersForValue(
       filters,
-      ['PatientID', 'PatientName', 'AccessionNumber', 'StudyDescription', 'ModalitiesInStudy'],
+      [
+        'PatientID',
+        'PatientName',
+        'AccessionNumber',
+        'StudyDescription',
+        'ModalitiesInStudy',
+      ],
       allFields
-    )
+    );
 
     if (firstSet.length) {
-      queryFiltersArray = firstSet
+      queryFiltersArray = firstSet;
     }
   } else if (displaySize === 'medium') {
-    const firstSet = _getQueryFiltersForValue(filters, ['PatientID', 'PatientName'], patientNameOrId)
+    const firstSet = _getQueryFiltersForValue(
+      filters,
+      ['PatientID', 'PatientName'],
+      patientNameOrId
+    );
 
     const secondSet = _getQueryFiltersForValue(
       filters,
       ['AccessionNumber', 'StudyDescription', 'ModalitiesInStudy'],
       accessionOrModalityOrDescription
-    )
+    );
 
     if (firstSet.length || secondSet.length) {
-      queryFiltersArray = firstSet.concat(secondSet)
+      queryFiltersArray = firstSet.concat(secondSet);
     }
   }
 
-  const queryPromises = []
+  const queryPromises = [];
 
-  queryFiltersArray.forEach((filter) => {
-    const searchStudiesPromise = OHIF.studies.searchStudies(server, filter)
-    queryPromises.push(searchStudiesPromise)
-  })
+  queryFiltersArray.forEach(filter => {
+    const searchStudiesPromise = OHIF.studies.searchStudies(server, filter);
+    queryPromises.push(searchStudiesPromise);
+  });
 
-  const lotsOfStudies = await Promise.all(queryPromises)
-  const studies = []
+  const lotsOfStudies = await Promise.all(queryPromises);
+  const studies = [];
 
   // Flatten and dedupe
-  lotsOfStudies.forEach((arrayOfStudies) => {
+  lotsOfStudies.forEach(arrayOfStudies => {
     if (arrayOfStudies) {
-      arrayOfStudies.forEach((study) => {
-        if (!studies.some((s) => s.StudyInstanceUID === study.StudyInstanceUID)) {
-          studies.push(study)
+      arrayOfStudies.forEach(study => {
+        if (!studies.some(s => s.StudyInstanceUID === study.StudyInstanceUID)) {
+          studies.push(study);
         }
-      })
+      });
     }
-  })
+  });
 
-  return studies
+  return studies;
 }
 
 /**
@@ -467,13 +544,13 @@ async function _fetchStudies(
  * @param {*} value
  */
 function _getQueryFiltersForValue(filters, fields, value) {
-  const queryFilters = []
+  const queryFilters = [];
 
   if (value === '' || !value) {
-    return queryFilters
+    return queryFilters;
   }
 
-  fields.forEach((field) => {
+  fields.forEach(field => {
     const filter = Object.assign(
       {
         PatientID: '',
@@ -483,13 +560,13 @@ function _getQueryFiltersForValue(filters, fields, value) {
         ModalitiesInStudy: '',
       },
       filters
-    )
+    );
 
-    filter[field] = value
-    queryFilters.push(filter)
-  })
+    filter[field] = value;
+    queryFilters.push(filter);
+  });
 
-  return queryFilters
+  return queryFilters;
 }
 
-export default withRouter(StudyListRoute)
+export default withRouter(StudyListRoute);

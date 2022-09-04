@@ -1,3 +1,3 @@
-import ErrorBoundaryDialog from './ErrorBoundaryDialog'
+import ErrorBoundaryDialog from './ErrorBoundaryDialog';
 
-export default ErrorBoundaryDialog
+export default ErrorBoundaryDialog;

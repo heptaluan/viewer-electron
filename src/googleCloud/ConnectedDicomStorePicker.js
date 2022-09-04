@@ -1,29 +1,32 @@
-import { connect } from 'react-redux'
-import DicomStorePickerModal from './DicomStorePickerModal.js'
+import { connect } from 'react-redux';
+import DicomStorePickerModal from './DicomStorePickerModal.js';
 
-const isActive = (a) => a.active === true
+const isActive = a => a.active === true;
 
-const mapStateToProps = (state) => {
-  const activeServer = state.servers.servers.find(isActive)
+const mapStateToProps = state => {
+  const activeServer = state.servers.servers.find(isActive);
 
   return {
     user: state.oidc && state.oidc.user,
     url: activeServer && activeServer.qidoRoot,
-  }
-}
+  };
+};
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
-    setServers: (servers) => {
+    setServers: servers => {
       const action = {
         type: 'SET_SERVERS',
         servers,
-      }
-      dispatch(action)
+      };
+      dispatch(action);
     },
-  }
-}
+  };
+};
 
-const ConnectedDicomStorePicker = connect(mapStateToProps, mapDispatchToProps)(DicomStorePickerModal)
+const ConnectedDicomStorePicker = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DicomStorePickerModal);
 
-export default ConnectedDicomStorePicker
+export default ConnectedDicomStorePicker;

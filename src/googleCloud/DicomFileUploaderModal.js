@@ -1,11 +1,17 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import DicomUploader from './DicomUploader'
-import { withTranslation } from 'react-i18next'
-import { servicesManager } from './../App.js'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import DicomUploader from './DicomUploader';
+import { withTranslation } from 'react-i18next';
+import { servicesManager } from './../App.js';
 
-function DicomFileUploaderModal({ isOpen = false, onClose, url, retrieveAuthHeaderFunction, t }) {
-  const { UIModalService } = servicesManager.services
+function DicomFileUploaderModal({
+                                 isOpen = false,
+                                 onClose,
+                                 url,
+                                 retrieveAuthHeaderFunction,
+                                 t,
+                               }) {
+  const { UIModalService } = servicesManager.services;
 
   const showDicomStorePickerModal = () => {
     if (!UIModalService) {
@@ -17,13 +23,15 @@ function DicomFileUploaderModal({ isOpen = false, onClose, url, retrieveAuthHead
       title: t('Upload DICOM Files'),
       contentProps: {
         url,
-        retrieveAuthHeaderFunction,
+        retrieveAuthHeaderFunction
       },
       onClose,
-    })
-  }
+    });
+  };
 
-  return <React.Fragment>{isOpen && showDicomStorePickerModal()}</React.Fragment>
+  return (
+    <React.Fragment>{isOpen && showDicomStorePickerModal()}</React.Fragment>
+  );
 }
 
 DicomFileUploaderModal.propTypes = {
@@ -31,6 +39,6 @@ DicomFileUploaderModal.propTypes = {
   retrieveAuthHeaderFunction: PropTypes.func.isRequired,
   onClose: PropTypes.func,
   url: PropTypes.string,
-}
+};
 
-export default withTranslation('Common')(DicomFileUploaderModal)
+export default withTranslation('Common')(DicomFileUploaderModal);
